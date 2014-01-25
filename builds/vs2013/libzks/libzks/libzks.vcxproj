@@ -68,7 +68,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\simconf.cpp" />
     <ClCompile Include="..\..\..\..\src\simlog.cpp" />
-    <ClCompile Include="..\..\..\..\src\test.cpp" />
     <ClCompile Include="..\..\..\..\src\u8string.cpp" />
   </ItemGroup>
   <ItemGroup>
