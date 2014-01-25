@@ -10,11 +10,14 @@
 
 namespace zks {
 
-	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> u8string::u16u8_cvt;
-	std::wstring_convert<std::codecvt_utf8<char32_t, 0x7fffffff>, char32_t> u8string::u32u8_cvt;
-	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> u8string::wcu8_cvt;
+namespace unicode {
+#ifdef _HAS_CHAR_T_SUPPORT
+	std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> u16u8_cvt;
+	std::wstring_convert<std::codecvt_utf8<char32_t, 0x7fffffff>, char32_t> u32u8_cvt;
+#endif
+	std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcu8_cvt;
 
-	char16_t u8string::to_char16(const char* u) {
+	char16_t to_char16(const char* u) {
 		if (u[0] & 0x80 && u[1]) {
 			if (u[0] & 0x20 && u[2]) {
 				return (char16_t) (((u[0] & 0x0f) << 12) | ((u[1] & 0x3f) << 6) | (u[2] & 0x3f));
@@ -28,7 +31,7 @@ namespace zks {
 		}
 	}
 
-	bool u8string::validate_u8char(const char* s, size_type* pLen) {
+	bool validate_u8char(const char* s, size_t* pLen) {
 		if (!s) {
 			if (pLen) *pLen = 0;
 			return false;
@@ -43,12 +46,12 @@ namespace zks {
 		* Thus (lead_n-2) is the last byte in continuation bytes(cb).
 		*/
 		bool ret{ false };
-		size_type len{ 0 };
+		size_t len{ 0 };
 		char lead_mask{ (char)0xe0 }, lead_control{ (char)0xc0 };
 		for (int lead_n = 3; lead_n < 8; ++lead_n) {
 			if ((*s & lead_mask) == lead_control) {
 				len = lead_n - 1;
-				size_type b = 1;
+				size_t b = 1;
 				while (b < len && s[b] && (s[b] & 0xc0) == 0x80)
 					++b;
 				assert(b <= len);
@@ -71,6 +74,21 @@ namespace zks {
 		return ret;
 	}
 
+	bool validate_range(const char* i1, const char* i2, size_t* pLen) {
+		if (!i1 || !i2 || i1 > i2) {
+			return false;
+		}
+		size_t char8_len{ 0 }, u8len{ 0 };
+		const char* i = i1;
+		while (i < i2 && *i && validate_u8char(i, &char8_len)) {
+			i += char8_len;
+			u8len += char8_len;
+		}
+		pLen ? (*pLen = u8len) : 0;
+		return i == i2;
+	}
+}
+
 	int u8string::update_() const {
 #if _ZKS_U8STRING_INDEX
 		if (!changed_) {
@@ -80,7 +98,7 @@ namespace zks {
 		size_type char8_len{ 0 }, index{ 0 };
 		const char* s = str_.c_str();
 		index_.push_back(index); // 0 for the 1st u8char;
-		while (*s && validate_u8char(s, &char8_len)) {
+		while (*s && unicode::validate_u8char(s, &char8_len)) {
 			s += char8_len;
 			index += char8_len;
 			index_.push_back(index);
@@ -104,24 +122,10 @@ namespace zks {
 #endif
 	}
 
-	bool u8string::validate_range(const char* i1, const char* i2, size_t* pLen) {
-		if (!i1 || !i2 || i1 > i2) {
-			return false;
-		}
-		size_type char8_len{ 0 }, u8len{ 0 };
-		const char* i = i1;
-		while (i < i2 && *i && validate_u8char(i, &char8_len)) {
-			i += char8_len;
-			u8len += char8_len;
-		}
-		pLen ? (*pLen = u8len) : 0;
-		return i == i2;
-	}
-
 	u8string& u8string::append(const char* s, size_type n) {
 		n = std::min(n, traits_type::length(s));
 #ifndef _ZKS_U8STRING_NOVALIDATION
-		if (!validate_range(s, s + n)) {
+		if (!unicode::validate_range(s, s + n)) {
 			throw std::invalid_argument("string to be added is invalid utf8");
 		}
 #endif
@@ -130,8 +134,9 @@ namespace zks {
 		return *this;
 	}
 
+#ifdef _HAS_CHAR_T_SUPPORT
 	u8string& u8string::append(size_type n, char16_t c16) {
-		std::string u = u16u8_cvt.to_bytes(c16);
+		std::string u = unicode::u16u8_cvt.to_bytes(c16);
 		reserve(size() + n * u.size());
 		for (size_type i = 0; i < n; ++i) {
 			append(u.data());
@@ -140,16 +145,17 @@ namespace zks {
 	}
 
 	u8string& u8string::append(size_type n, char32_t c32) {
-		std::string u = u32u8_cvt.to_bytes(c32);
+		std::string u = unicode::u32u8_cvt.to_bytes(c32);
 		reserve(size() + n * u.size());
 		for (size_type i = 0; i < n; ++i) {
 			append(u.data());
 		}
 		return *this;
 	}
+#endif
 
 	u8string& u8string::append(size_type n, wchar_t wc) {
-		std::string u = wcu8_cvt.to_bytes(wc);
+		std::string u = unicode::wcu8_cvt.to_bytes(wc);
 		reserve(size() + n * u.size());
 		for (size_type i = 0; i < n; ++i) {
 			append(u.data());
@@ -170,7 +176,7 @@ namespace zks {
 
 #ifndef _ZKS_U8STRING_NOVALIDATION
 		size_type len{ 0 };
-		if (!validate(str_.c_str(), &len)) {
+		if (!unicode::validate(str_.c_str(), &len)) {
 			std::string err_msg{ "input utf8 string is invalid at position(" };
 			err_msg += std::to_string(len) + ")";
 			throw std::invalid_argument(err_msg.c_str());
@@ -187,7 +193,7 @@ namespace zks {
 		}
 		size_type sz{ traits_type::length(str) };
 #ifndef _ZKS_U8STRING_NOVALIDATION
-		if (!validate(str)) {
+		if (!unicode::validate(str)) {
 			throw std::invalid_argument("input string is nullptr or invalid.");
 		}
 #endif
@@ -212,7 +218,7 @@ namespace zks {
 		size_type str_sz = traits_type::length(str);
 		str_cnt = std::min(str_sz, str_cnt);
 #ifndef _ZKS_U8STRING_NOVALIDATION
-		if (!validate(std::string(str, str_cnt).data())) {
+		if (!unicode::validate(std::string(str, str_cnt).data())) {
 			throw std::invalid_argument("input string is nullptr or invalid.");
 		}
 #endif
@@ -240,7 +246,7 @@ namespace zks {
 		u8string add_str{ s, n2 };
 		n1 = std::min(n1, size() - pos);
 #ifndef _ZKS_U8STRING_NOVALIDATION
-		if ( !add_str.is_valid() || !validate_range(&str_[pos], &str_[pos + n1])) {
+		if ( !add_str.is_valid() || !unicode::validate_range(&str_[pos], &str_[pos + n1])) {
 			throw std::invalid_argument("new string is invalid utf8 string");
 		}
 #endif
@@ -357,9 +363,9 @@ namespace zks {
 		if (ret.is_null()) {
 			return ret;
 		}
-		p = ret.size() - 1;
-		while (p >= 0 && std::isspace(ret[p], loc)) --p;
-		ret.erase(p + 1);
+		long pp = (long)ret.size() - 1;
+		while (pp >= 0 && std::isspace(ret[pp], loc)) --pp;
+		ret.erase(pp + 1);
 		
 		return ret;
 	}
@@ -467,7 +473,7 @@ namespace zks {
 		u8string ret;
 		ret.reserve(size());
 		for (auto i = u8_cbegin(); i != u8_cend(); ++i) {
-			for (auto c : u16u8_cvt.from_bytes(i.begin(), i.end())) {
+			for (auto c : unicode::wcu8_cvt.from_bytes(i.begin(), i.end())) {
 				ret.append(std::toupper(c, loc));
 			}
 		}
@@ -479,7 +485,7 @@ namespace zks {
 		u8string ret;
 		ret.reserve(size());
 		for (auto i = u8_cbegin(); i != u8_cend(); ++i) {
-			for (auto c : u16u8_cvt.from_bytes(i.begin(), i.end())) {
+			for (auto c : unicode::wcu8_cvt.from_bytes(i.begin(), i.end())) {
 				ret.append(std::tolower(c, loc));
 			}
 		}
@@ -565,7 +571,7 @@ namespace zks {
 		}
 		std::string line;
 		std::getline(fin, line);
-		if (u8string::validate(line.data())) {
+		if (unicode::validate(line.data())) {
 			return zks::txt_format::utf8;
 		}
 		return zks::txt_format::unknown;

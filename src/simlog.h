@@ -9,8 +9,10 @@
 #include <chrono>
 #include <ctime>
 #include <memory>
+#include <thread>
 
 namespace zks {
+
 	class simlog {
 	public:
 		enum Level { 
@@ -88,6 +90,7 @@ namespace zks {
 		typedef std::lock_guard<mutex_t> lock_guard_t;
 		typedef std::chrono::system_clock clock_t;
 
+		std::hash<std::thread::id> thread_hash_;
 		std::shared_ptr<std::ostream> ostream_;
 		u8string fmt_str_;
 		

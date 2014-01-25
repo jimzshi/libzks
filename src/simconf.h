@@ -50,7 +50,7 @@ namespace zks {
 		};
 	public:
 		simconf(u8string const& assign = "=", u8string const& sep = ",", u8string const & cmt = "#") :
-			_assign_(assign), _sep_(sep), _cmt_(cmt), _sec_name_("global") {
+			_sep_(sep), _assign_(assign), _cmt_(cmt), _sec_name_("global") {
 			_quote_ = R"(")";
 			_escape_ = R"(\)";
 			_sec_map_[_sec_name_].clear();
@@ -102,6 +102,7 @@ namespace zks {
 			return 0;
 		}
 	};
+
 }
 
 #endif /*SIMCONF_H_*/

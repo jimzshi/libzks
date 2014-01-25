@@ -44,7 +44,7 @@ int test_locale(int argc, char* argv[]) {
 		{ (char)0xf0, (char)0xa4, (char)0xad, (char)0xe2 }
 	};
 	for (auto& u8s : utf8strs) {
-		v = u8string::validate_u8char(u8s.c_str(), &len);
+		v = unicode::validate_u8char(u8s.c_str(), &len);
 		std::clog << "utf8: " << u8s << "\nvalide: " << v;
 		if (v) {
 			std::clog << "\nutf8 char has " << len << " bytes." << endl;
@@ -55,7 +55,7 @@ int test_locale(int argc, char* argv[]) {
 	}
 
 	for (auto& u8s : utf8strs) {
-		v = u8string::validate(u8s.c_str(), &len);
+		v = unicode::validate(u8s.c_str(), &len);
 		std::clog << "utf8: " << u8s << "\nvalide: " << v;
 		if (v) {
 			std::clog << "\nutf8 char has " << len << " bytes." << endl;
@@ -65,10 +65,11 @@ int test_locale(int argc, char* argv[]) {
 		}
 	}
 
+#ifdef _HAS_CHAR_T_SUPPORT
 	u32string utf32 = {0x64, 0x345, 0x4321, 0x19b07, 0x1d3006, 0x2000ff, 0x400003f, 0x0};
 	for (auto& u32c : utf32) {
-		string u8c = u8string::u32u8_cvt.to_bytes(u32c);
-		v = u8string::validate_u8char(u8c.c_str(), &len);
+		string u8c = unicode::u32u8_cvt.to_bytes(u32c);
+		v = unicode::validate_u8char(u8c.c_str(), &len);
 		std::clog << "utf8: " << u8c << "\nvalide: " << v;
 		if (v) {
 			std::clog << "\nutf8 char has " << len << " bytes." << endl;
@@ -77,6 +78,7 @@ int test_locale(int argc, char* argv[]) {
 			std::clog << "\nutf8 is invalid, the " << len + 1 << "(th) byte in string is invalid" << endl;
 		}
 	}
+#endif
 
 	return 0;
 }
@@ -94,6 +96,7 @@ int test_assign() {
 }
 
 int test_access() {
+#ifdef _HAS_CHAR_T_SUPPORT
 	string u8c{ (char)0xf0, (char)0xa4, (char)0xad, (char)0xa2 };
 	u8string s{(char32_t)0x10481, (char32_t)0x10482, (char32_t)0x1D306};
 	//s.assign(10, u8c.c_str());
@@ -106,20 +109,23 @@ int test_access() {
 	s.at(2) = (char)0xae;
 
 	std::clog << "new s:" << s << endl;
-
+#endif
 	return 0;
 }
 
 int test_insert() {
+#ifdef _HAS_CHAR_T_SUPPORT
 	string u8c{ (char)0xf0, (char)0xa4, (char)0xad, (char)0xa2 };
 	u8string s{ (char32_t)0x10481, (char32_t)0x10482, (char32_t)0x1D306 };
 	std::clog << "u8c: " << u8c << "\n" << "u8s: " << s << "\n";
 	s.insert(4, 5, u8c.data(), u8c.size());
 	std::clog << "new u8s: " << s << std::endl;
+#endif
 	return 0;
 }
 
 int test_format() {
+#ifdef _HAS_CHAR_T_SUPPORT
 	string u8c{ (char)0xf0, (char)0xa4, (char)0xad, (char)0xa2 };
 	u8string s{ (char32_t)0x10481, (char32_t)0x10482, (char32_t)0x1D306, (char32_t)0x20000 };
 	std::clog << "u8c: " << u8c << "\n" << "u8s: " << s << "\n";
@@ -130,21 +136,26 @@ int test_format() {
 	s.append(100, "%d\n\t%s", 3, "warning");
 	std::clog << "new u8s: " << s << std::endl;
 	std::clog << "size: " << s.size() << "\tcap: " << s.capacity() << endl;
+#endif
 	return 0;
 }
 
-int unicode_output() { 
+int unicode_output() {
+#ifdef _HAS_CHAR_T_SUPPORT
 	u8string s;
 	s.reserve(8);
 	for (char32_t i = 0x00100; i < 0x2FA1F; ++i) {
-		if (u8string::invalid_codepoint(i)) continue;
+		if (unicode::invalid_codepoint(i)) continue;
 		s = i;
 		std::clog << "U+" << std::setbase(16) << std::setw(5) << std::setfill('0') << i << "\t" << s << "\n";
 	}
+#endif
+
 	return 0;
 }
 
 int test_append() {
+#ifdef _HAS_CHAR_T_SUPPORT
 	string u8c{ (char)0xf0, (char)0xa4, (char)0xad, (char)0xa2 };
 	u8string s{ (char32_t)0x10481, (char32_t)0x10482, (char32_t)0x1D306, (char32_t)0x20000 };
 	std::clog << "u8c: " << u8c << "\n" << "u8s: " << s << "\n";
@@ -154,7 +165,7 @@ int test_append() {
 	std::wstring s3{ L"测试wstring" };
 	//std::clog << "chinese: " << u8c + s + s3 << "\n";
 	u8string s4{ "hello world!" };
-
+#endif
 	return 0;
 }
 

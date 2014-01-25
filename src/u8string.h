@@ -1,6 +1,18 @@
 #ifndef _ZKS_U8STRING_H
 #define _ZKS_U8STRING_H
 
+#if defined (_WIN32) && defined(__AFX_H__)
+#define _HAS_WIN32_CSTRING
+#endif
+
+#if defined(_WIN32)
+#define _HAS_CHAR_T_SUPPORT
+#endif
+
+#if defined(_WIN32) || defined(__clang__)
+#define _HAS_CODECVT
+#endif
+
 #include "iterator.h"
 
 #include <string>
@@ -12,9 +24,7 @@
 #include <type_traits>
 #include <locale>
 
-#if defined (_WIN32) && defined(__AFX_H__)
-#define _HAS_WIN32_CSTRING
-#endif
+
 
 //#undef _ZKS_U8STRING_NOVALIDATION
 #define _ZKS_U8STRING_INDEX 1
@@ -22,6 +32,26 @@
 
 
 namespace zks {
+
+namespace unicode {
+//helpers
+#ifdef _HAS_CHAR_T_SUPPORT
+    extern std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> u16u8_cvt;
+    extern std::wstring_convert<std::codecvt_utf8<char32_t, 0x7fffffff>, char32_t> u32u8_cvt;
+#endif
+	extern std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcu8_cvt;
+
+	char16_t to_char16(const char* s);
+	bool validate_u8char(const char* s, size_t* pLen = nullptr);
+	bool validate_range(const char* i1, const char* i2, size_t* pLen = nullptr);
+	/*
+	 * @para pLen [out] how many valid u8 bytes in the string.
+	*/
+	inline bool validate(const char* s, size_t* pLen = nullptr) { return validate_range(s, s + std::char_traits<char>::length(s), pLen); }
+	template<typename T_>
+	bool invalid_codepoint(T_ cp) { return cp >= 0xd800 && cp <= 0xdfff; }
+}
+
 
 	template<typename T_>
 	class u8_iterator_ {
@@ -39,7 +69,7 @@ namespace zks {
 	public:
 		u8_iterator_() : ptr_(nullptr), len_(0) {}
 		u8_iterator_(pointer p) : ptr_(p)	{
-			if (!u8string::validate_u8char(ptr_, &len_)) {
+			if (!unicode::validate_u8char(ptr_, &len_)) {
 #ifndef _ZKS_U8STRING_NOVALIDATION
 				throw std::runtime_error("invalid utf8 char iterator.");
 #endif
@@ -64,7 +94,7 @@ namespace zks {
 
 		Self_& operator++() {
 			ptr_ += len_;
-			if (!u8string::validate_u8char(ptr_, &len_)) {
+			if (!unicode::validate_u8char(ptr_, &len_)) {
 #ifndef _ZKS_U8STRING_NOVALIDATION
 				throw std::runtime_error("invalid utf8 char iterator.");
 #endif
@@ -134,21 +164,6 @@ namespace zks {
 	class u8string
 	{
 	public:
-		//helpers
-		static std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> u16u8_cvt;
-		static std::wstring_convert<std::codecvt_utf8<char32_t, 0x7fffffff>, char32_t> u32u8_cvt;
-		static std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> wcu8_cvt;
-
-		static char16_t to_char16(const char* s);
-		static bool validate_u8char(const char* s, size_t* pLen = nullptr);
-		static bool validate_range(const char* i1, const char* i2, size_t* pLen = nullptr);
-		/*
-		 * @para pLen [out] how many valid u8 bytes in the string.
-		*/
-		static bool validate(const char* s, size_t* pLen = nullptr) { return validate_range(s, s + traits_type::length(s), pLen); }
-		template<typename T_>
-		static bool invalid_codepoint(T_ cp) { return cp >= 0xd800 && cp <= 0xdfff; }
-
 		//typedefs
 		typedef std::char_traits<char>			traits_type;
 
@@ -216,20 +231,24 @@ namespace zks {
 				append(*i);
 			}
 		}
-		//u8string(std::initializer_list<char> ilist) : u8string(ilist.begin(), ilist.end()) {}
-		u8string(std::initializer_list<char32_t> ilist) : u8string(ilist.begin(), ilist.end()) {}
 		u8string(std::string const& s) { assign(s.data()); }
+		//u8string(std::initializer_list<char> ilist) : u8string(ilist.begin(), ilist.end()) {}
+#ifdef _HAS_CHAR_T_SUPPORT
+		u8string(std::initializer_list<char32_t> ilist) : u8string(ilist.begin(), ilist.end()) {}
 		explicit u8string(std::u16string const& s) { operator=(s); }
 		explicit u8string(std::u32string const& s) { operator=(s); }
+#endif
 		explicit u8string(std::wstring const& s) { operator=(s); }
 		template<typename charT>
 		explicit u8string(u8_iterator_<charT> const& i) { operator=(i); }
 		~u8string() = default;
 
 		u8string& operator=(char c) { str_.resize(1); str_[0] = c; on_change_(); return *this; }
-		u8string& operator=(char16_t c16) { str_ = u16u8_cvt.to_bytes(c16); on_change_(); return *this; }
-		u8string& operator=(char32_t c32) { str_ = u32u8_cvt.to_bytes(c32); on_change_(); return *this; }
-		u8string& operator=(wchar_t wc) { str_ = wcu8_cvt.to_bytes(wc); on_change_(); return *this; }
+#ifdef _HAS_CHAR_T_SUPPORT
+		u8string& operator=(char16_t c16) { str_ = unicode::u16u8_cvt.to_bytes(c16); on_change_(); return *this; }
+		u8string& operator=(char32_t c32) { str_ = unicode::u32u8_cvt.to_bytes(c32); on_change_(); return *this; }
+#endif
+		u8string& operator=(wchar_t wc) { str_ = unicode::wcu8_cvt.to_bytes(wc); on_change_(); return *this; }
 		u8string& operator=(const char* cstr) { return assign(cstr); }
 		u8string& operator=(u8string const& u8s) {
 			if (&u8s != this) {
@@ -239,10 +258,12 @@ namespace zks {
 		}
 		u8string& operator=(u8string && u8s) { return assign(std::move(u8s)); }
 		u8string& operator=(std::string const& s) { return assign(s.c_str(), 0, s.size()); }
-		u8string& operator=(std::u16string const& u16s) { str_ = u16u8_cvt.to_bytes(u16s); on_change_(); return *this; }
-		u8string& operator=(std::u32string const& u32s) { str_ = u32u8_cvt.to_bytes(u32s); on_change_(); return *this; }
-		u8string& operator=(std::wstring const& ws) { str_ = wcu8_cvt.to_bytes(ws); on_change_(); return *this; }
+#ifdef _HAS_CHAR_T_SUPPORT
+		u8string& operator=(std::u16string const& u16s) { str_ = unicode::u16u8_cvt.to_bytes(u16s); on_change_(); return *this; }
+		u8string& operator=(std::u32string const& u32s) { str_ = unicode::u32u8_cvt.to_bytes(u32s); on_change_(); return *this; }
 		u8string& operator=(std::initializer_list<char32_t> ilist) { operator=(u8string(ilist)); on_change_(); return *this; }
+#endif
+		u8string& operator=(std::wstring const& ws) { str_ = unicode::wcu8_cvt.to_bytes(ws); on_change_(); return *this; }
 		//u8string& operator=(std::initializer_list<char> ilist) { operator=(u8string(ilist)); on_change_(); return *this; }
 		template<typename charT>
 		u8string& operator=(u8_iterator_<charT> const& i) { return assign(i.get(), 0, i.len()); }
@@ -305,10 +326,12 @@ namespace zks {
 		u8string& operator+=(const u8string& str) { return append(str); }
 		u8string& operator+=(const char* s) { return append(s); }
 		u8string& operator+=(char c) { return append(c); }
+#ifdef _HAS_CHAR_T_SUPPORT
 		u8string& operator+=(char16_t c16) { return append(c16); }
 		u8string& operator+=(char32_t c32) { return append(c32); }
-		u8string& operator+=(wchar_t wc) { return append(wc); }
 		u8string& operator+=(std::initializer_list<char32_t> ilist) { return append(ilist); }
+#endif
+		u8string& operator+=(wchar_t wc) { return append(wc); }
 
 		// 21.4.6.2 append()
 		u8string& append(const u8string& str) { return append(str.data(), str.size()); }
@@ -322,8 +345,11 @@ namespace zks {
 		u8string& append(const char* s) { return append(s, npos); }
 
 		u8string& append(size_type n, char c) { return append(u8string(n, c)); }
+#ifdef _HAS_CHAR_T_SUPPORT
 		u8string& append(size_type n, char16_t c16);	//cpp
 		u8string& append(size_type n, char32_t c32);	//cpp
+		u8string& append(std::initializer_list<char32_t> ilist) { return append(ilist.begin(), ilist.end()); }
+#endif
 		u8string& append(size_type n, wchar_t wc);	//cpp
 		template<typename charT>
 		u8string& append(charT c) { return append(1, c); }
@@ -337,7 +363,7 @@ namespace zks {
 			}
 			return *this;
 		}
-		u8string& append(std::initializer_list<char32_t> ilist) { return append(ilist.begin(), ilist.end()); }
+
 		template<typename charT>
 		void push_back(charT c) { append(1, c); }
 
@@ -366,9 +392,12 @@ namespace zks {
 
 		u8string& assign(size_type s, const char* str);  //cpp
 		u8string& assign(size_type s, char c) { str_.assign(s, c); on_change_(); return *this; }
-		u8string& assign(size_type s, char16_t c16) { std::string u8 = u16u8_cvt.to_bytes(c16); return assign(s, u8.data()); }
-		u8string& assign(size_type s, char32_t c32) { std::string u8 = u32u8_cvt.to_bytes(c32); return assign(s, u8.data()); }
-		u8string& assign(size_type s, wchar_t wc) { std::string u8 = wcu8_cvt.to_bytes(wc); return assign(s, u8.data()); }
+#ifdef _HAS_CHAR_T_SUPPORT
+		u8string& assign(size_type s, char16_t c16) { std::string u8 = unicode::u16u8_cvt.to_bytes(c16); return assign(s, u8.data()); }
+		u8string& assign(size_type s, char32_t c32) { std::string u8 = unicode::u32u8_cvt.to_bytes(c32); return assign(s, u8.data()); }
+		u8string& assign(std::initializer_list<char32_t> ilist) { return assign(ilist.begin(), ilist.end()); }
+#endif
+		u8string& assign(size_type s, wchar_t wc) { std::string u8 = unicode::wcu8_cvt.to_bytes(wc); return assign(s, u8.data()); }
 		u8string& assign(size_type s, u8string const& u8s) { return assign(s, u8s.data()); }
 
 		u8string& assign(u8string const& u8s) { str_.assign(u8s.str_); on_change_(); return *this; }
@@ -378,7 +407,6 @@ namespace zks {
 		u8string& assign(InputIterator first, InputIterator last) {
 			return assign(u8string(first, last));
 		}
-		u8string& assign(std::initializer_list<char32_t> ilist) { return assign(ilist.begin(), ilist.end()); }
 
 		//24.4.6.4 insert()
 		u8string& insert(size_type index, char c) { on_change_(); str_.insert(index, 1, c); return *this; }
@@ -400,7 +428,9 @@ namespace zks {
 			insert(offset, tmp);
 			return (begin() + offset);
 		}
+#ifdef _HAS_CHAR_T_SUPPORT
 		iterator insert(const_iterator pos, std::initializer_list<char32_t> ilist) { return insert(pos, ilist.begin(), ilist.end()); }
+#endif
 		/*iterator insert(const_iterator pos, std::initializer_list<char> ilist);*/
 
 		//21.4.6.5 erase()
@@ -421,7 +451,9 @@ namespace zks {
 		u8string& replace(const_iterator i1, const_iterator i2, size_type n, char c) { str_.replace(i1, i2, n, c); on_change_(); return *this; }
 		template<class InputIterator>
 		u8string& replace(const_iterator i1, const_iterator i2, InputIterator j1, InputIterator j2) { return replace(i1, i2, u8string(j1, j2));	}
+#ifdef _HAS_CHAR_T_SUPPORT
 		u8string& replace(const_iterator i1, const_iterator i2, std::initializer_list<char32_t> ilist) { return replace(i1, i2, ilist.begin(), ilist.end()); }
+#endif
 		//21.4.6.7 copy()
 		size_type copy(char* s, size_type n, size_type pos = 0) const;
 		//21.4.6.8 swap()
@@ -493,10 +525,12 @@ namespace zks {
 		 * other non-standard utilities;
 		 **************************/
 		//const
-		std::u16string u16string() const { return u16u8_cvt.from_bytes(str_); }
-		std::u32string u32string() const { return u32u8_cvt.from_bytes(str_); }
-		std::wstring wstring() const { return wcu8_cvt.from_bytes(str_); }
-		bool is_valid() const { return validate(str_.data()); }
+#ifdef _HAS_CHAR_T_SUPPORT
+		std::u16string u16string() const { return unicode::u16u8_cvt.from_bytes(str_); }
+		std::u32string u32string() const { return unicode::u32u8_cvt.from_bytes(str_); }
+#endif
+		std::wstring wstring() const { return unicode::wcu8_cvt.from_bytes(str_); }
+		bool is_valid() const { return unicode::validate(str_.data()); }
 		bool is_null() const { return empty();	}
 		bool startswith(u8string const& s) const { return (s.size() > size()) ? false : (compare(0, s.size(), s) == 0); }
 		bool endswith(u8string const& s) const { return (s.size() > size()) ? false : (compare(size() - s.size(), s.size(), s) == 0); }
@@ -596,7 +630,7 @@ namespace zks {
 	template<typename charT>
 	u8string operator+(const u8string& lhs, const charT* rhs)  {
 		u8string::size_type sz = std::char_traits<charT>::length(rhs);
-		return lhs + u8string(lhs, lhs + sz);
+		return lhs + u8string(rhs, rhs + sz);
 	}
 	template<typename charT>
 	u8string operator+(u8string&& lhs, const charT* rhs) {

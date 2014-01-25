@@ -7,7 +7,8 @@ using namespace std;
 zks::simlog logger;
 
 int main(int argc, char* argv[]) {
-	logger.configure((R"(C:\github\jimzshi\libzks\src\simlog.ini)"));
+	//logger.configure((R"(C:\github\jimzshi\libzks\src\simlog.ini)"));
+	logger.configure((R"(/home/zikang/github/jimzshi/libzks/src/simlog.ini)"));
 	logger.reset();
 
 	//test_locale(argc, argv);

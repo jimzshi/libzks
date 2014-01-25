@@ -66,9 +66,9 @@ namespace zks {
 		//open file;
 		_fname_ = file;
 		_FnameGuard Here(_fname_set_, _fname_);
-		std::wifstream ifs(_fname_.wstring());
+		std::wifstream ifs(_fname_.c_str());
 		if (ifs.fail()) {
-			std::cerr << " can not open: `" << _fname_ << std::endl;
+			std::cerr << " can not open: `[" << _fname_ << "]`" << std::endl;
 			return -1;
 		}
 		std::locale loc{ ifs.getloc(), new std::codecvt_utf8<wchar_t, 0x10ffff, std::consume_header> };

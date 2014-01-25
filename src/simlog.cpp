@@ -9,8 +9,8 @@
 
 namespace zks {
 
-	const std::array<u8string, simlog::Level::lsize> simlog::level_string = { "EMERG", "FATAL", "ALERT", "CRIT", "ERROR", "WARN", "NOTICE", "INFO", "DEBUG", "TRACE" };
-	const std::array<u8string, simlog::Column::csize> simlog::column_string = { "DATETIME", "EPOCHTIME", "THREAD", "FILE", "FUNC", "LINE", "GROUP", "LEVEL", "MESG"};
+	const std::array<u8string, simlog::Level::lsize> simlog::level_string = { {"EMERG", "FATAL", "ALERT", "CRIT", "ERROR", "WARN", "NOTICE", "INFO", "DEBUG", "TRACE"} };
+	const std::array<u8string, simlog::Column::csize> simlog::column_string = { {"DATETIME", "EPOCHTIME", "THREAD", "FILE", "FUNC", "LINE", "GROUP", "LEVEL", "MESG"} };
 
 	simlog::simlog(u8string const& ini_file) {
 		if (configure(ini_file) < 0) {
@@ -36,7 +36,7 @@ namespace zks {
 			line_buff_.format(config.buff.line_buff_size, fmt_str_.c_str(),
 				get_datetime_().c_str(),
 				(size_t) std::chrono::duration_cast<std::chrono::microseconds>(clock_t::now() - epoch_).count(),
-				std::this_thread::get_id().hash(),
+				thread_hash_(std::this_thread::get_id()),
 				file,
 				func,
 				line,
