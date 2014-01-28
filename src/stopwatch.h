@@ -80,7 +80,7 @@ namespace zks {
 		std::vector<TimePoint> _tpv_;
 	};
 
-	std::ostream& operator<<(std::ostream& os, const StopWatch& sw) {
+	inline std::ostream& operator<<(std::ostream& os, const StopWatch& sw) {
 		os << sw.u8str();
 		return os;
 	}
