@@ -5,5 +5,6 @@
 #include "simconf.h"
 #include "simlog.h"
 #include "stopwatch.h"
+#include "utility.h"
 
 #endif

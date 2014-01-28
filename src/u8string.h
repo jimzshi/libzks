@@ -343,6 +343,8 @@ namespace unicode {
 		}
 		u8string& append(const char* s, size_type n); //cpp
 		u8string& append(const char* s) { return append(s, npos); }
+		u8string& append(char* s, size_type n){ return append((const char*)s, n); }
+		u8string& append(char* s) { return append(s, npos); }
 
 		u8string& append(size_type n, char c) { return append(u8string(n, c)); }
 #ifdef _HAS_CHAR_T_SUPPORT

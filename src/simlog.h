@@ -118,7 +118,7 @@ namespace zks {
 		}
 		~simlog() {
 			if (!buff_.is_null() && ostream_->good()) {
-				*ostream_ << buff_;
+				flush();
 			}
 		}
 
