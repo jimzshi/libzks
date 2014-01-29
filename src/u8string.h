@@ -467,6 +467,7 @@ namespace unicode {
 		//21.4.7.1 accessors
 		const char* data() const { return str_.c_str(); }
 		const char* c_str() const { return str_.c_str(); }
+		const std::string& str() const { return str_; }
 
 		size_type find(const u8string& str, size_type pos = 0) const noexcept{ return str_.find(str.str_, pos); }
 		size_type find(const char* s, size_type pos, size_type n) const { return find(u8string(s, n), pos); }

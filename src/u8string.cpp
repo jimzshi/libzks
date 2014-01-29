@@ -284,9 +284,12 @@ namespace unicode {
 		std::shared_ptr<char> buff{ new char[max] };
 		va_list arg_list;
 		va_start(arg_list, fmt);
-		std::vsnprintf(buff.get(), max, fmt, arg_list);
+		int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
 		va_end(arg_list);
 
+		if (sz < 0 || (size_t)sz > max) {
+			sz = max;
+		}
 		assign(buff.get());
 		on_change_();
 		return *this;
@@ -294,8 +297,11 @@ namespace unicode {
 
 	u8string& u8string::format(size_type max, const char* fmt, va_list arg_list) {
 		std::shared_ptr<char> buff{ new char[max] };
-		std::vsnprintf(buff.get(), max, fmt, arg_list);
-		assign(buff.get());
+		int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
+		if (sz < 0 || (size_t)sz > max) {
+			sz = max;
+		}
+		assign(buff.get(), sz);
 		on_change_();
 		return *this;
 	}
@@ -304,17 +310,23 @@ namespace unicode {
 		std::shared_ptr<char> buff{ new char[max] };
 		va_list arg_list;
 		va_start(arg_list, fmt);
-		std::vsnprintf(buff.get(), max, fmt, arg_list);
+		int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
 		va_end(arg_list);
 
-		append(buff.get());
+		if (sz < 0 || (size_t) sz > max) {
+			sz = max;
+		}
+		append(buff.get(), sz);
 		on_change_();
 		return *this;
 	}
 
 	u8string& u8string::append(size_type max, const char* fmt, va_list arg_list) {
 		std::shared_ptr<char> buff{ new char[max] };
-		std::vsnprintf(buff.get(), max, fmt, arg_list);
+		int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
+		if (sz < 0 || (size_t) sz > max) {
+			sz = max;
+		}
 		append(buff.get());
 		on_change_();
 		return *this;

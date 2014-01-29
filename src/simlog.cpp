@@ -44,10 +44,15 @@ namespace zks {
 				level_string[level].c_str(),
 				msg_buff_.c_str()
 				);
-			buff_.append(line_buff_);
-
-			if (buff_.size() > config.buff.size) {
-				flush();
+			
+			if (config.buff.enable) {
+				buff_.append(line_buff_);
+				if (!config.buff.enable || buff_.size() > config.buff.size) {
+					flush();
+				}
+			}
+			else {
+				(*ostream_) << line_buff_ << std::flush;
 			}
 		}
 	}
