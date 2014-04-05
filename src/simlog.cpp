@@ -95,7 +95,7 @@ namespace zks {
 			ostream_ = std::make_shared<std::ostream>(std::clog.rdbuf());
 		}
 		else if (config.stream_type == 3) {
-			ostream_.reset(new std::ofstream(config.output.file_name.c_str()));
+			ostream_.reset(new std::ofstream(config.output.file_name.c_str(), std::ios_base::app));
 			if (ostream_->bad()) {
 				throw std::runtime_error("can not open log file.");
 			}

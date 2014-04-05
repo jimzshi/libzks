@@ -26,6 +26,15 @@ int main(int argc, char* argv[]) {
 	//test_join();
 	//test_caseit();
 	//test_stopwatch(logger);
-	test_simlog();
+	//test_simlog();
+	size_t cardinals[5] = { 3, 4, 5, 4, 3 };
+	zks::Permutations<5> perm{ cardinals };
+	//for (size_t i = 0; i < perm.size(); ++i, perm.next()) {
+	//	ZKS_ERROR(logger, "perm", "%5d/%5d: {%d, %d, %d, %d, %d}", i, perm.size(), 
+	//		perm.index(0), perm.index(1), perm.index(2), perm.index(3), perm.index(4));
+	//}
+	perm.begin_at(13);
+	ZKS_ERROR(logger, "perm", "%5d/%5d: {%d, %d, %d, %d, %d}", 13, perm.size(),
+		perm.index(0), perm.index(1), perm.index(2), perm.index(3), perm.index(4));
 	return 0;
 }

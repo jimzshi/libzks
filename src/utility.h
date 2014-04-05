@@ -9,6 +9,9 @@
 #include <set>
 #include <map>
 #include <utility>
+#include <memory>
+#include <numeric>
+#include <functional>
 
 namespace zks
 {
@@ -21,6 +24,79 @@ namespace zks
 		~LocalBackup() {
 			ref_ = std::move(old_);
 		}
+	};
+
+	template<int R_, typename T_ = size_t>
+	class Permutations {
+	public:
+		typedef T_ index_t;
+		typedef index_t* ptr_t;
+		typedef index_t const* const_ptr;
+	private:
+		size_t size_;
+		ptr_t cardinals_;
+		ptr_t indices_;
+	public:
+		const size_t rank = R_;
+		Permutations(index_t const* v) {
+			cardinals_ = new index_t[rank];
+			std::copy(v, v + rank, cardinals_);
+			if (!valid_cardinals()) {
+				throw std::runtime_error("invalid cardinals.");
+			}
+			size_ = std::accumulate(cardinals_, cardinals_ + rank, 1, 
+				[](index_t const& x, index_t const& y) { return x*y; });
+			indices_ = new index_t[rank];
+			std::fill_n(indices_, rank, 0);
+		}
+		~Permutations() { 
+			delete[] cardinals_;
+			delete[] indices_;
+		}
+		void begin_at(index_t const* v) {
+			std::copy(v, v + rank, indices_);
+			if (!valid_indices()) {
+				throw std::runtime_error("invalid starting indices.");
+			}
+		}
+		void begin_at(size_t p) {
+			for (size_t i = 0; i < rank; ++i) {
+				indices_[i] = p % cardinals_[i];
+				p /= cardinals_[i];
+			}
+
+		}
+		size_t size() const { return size_; }
+		void next() {
+			for (size_t i = 0; i < rank; ++i) {
+				++indices_[i];
+				if (indices_[i] < cardinals_[i]) {
+					return;
+				}
+				indices_[i] = 0;
+			}
+		}
+		bool valid_cardinals() const {
+			return std::none_of(cardinals_, cardinals_ + rank, [](index_t const& c) { return c < 0; });
+		}
+		bool valid_indices() const {
+			for (size_t i = 0; i < rank; ++i) {
+				if (indices_[i] >= cardinals_[i]) return false;
+			}
+		}
+		index_t index(size_t i) const {
+			if (i < 0 || i >= rank) {
+				throw std::runtime_error("out of rank.");
+			}
+			return indices_[i];
+		}
+		index_t cardinal(size_t i) const {
+			if (i < 0 || i >= rank) {
+				throw std::runtime_error("out of rank.");
+			}
+			return cardinals_[i];
+		}
+		const_ptr indices() const { return indices_; }
 	};
 }
 
