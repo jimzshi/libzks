@@ -81,6 +81,7 @@
     <ClInclude Include="..\..\..\..\unittest\test_locale.h" />
     <ClInclude Include="..\..\..\..\unittest\test_simlog.h" />
     <ClInclude Include="..\..\..\..\unittest\test_stopwatch.h" />
+    <ClInclude Include="..\..\..\..\unittest\test_utility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\unittest\test.ini" />

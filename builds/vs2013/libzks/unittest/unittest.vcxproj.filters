@@ -35,6 +35,9 @@
     <ClInclude Include="..\..\..\..\unittest\test_stopwatch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\unittest\test_utility.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\unittest\test.ini" />
