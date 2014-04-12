@@ -26,7 +26,7 @@ void test_hash1() {
     ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     h += "haha";
     ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
-    zks::u8string str(L"¹þ¹þÄãºÃÂð");
+    zks::u8string str(L"halo");
     h += str;
     ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     zks::HashCode32 h2;

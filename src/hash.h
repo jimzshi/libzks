@@ -6,6 +6,7 @@
 #include "u8string.h"
 
 #include <cstdint>
+#include <cstring>
 #include <array>
 
 namespace zks {
@@ -48,14 +49,9 @@ namespace zks {
             return MurmurHash::hash(key, n, seed);
         }
     };
-    template<>
-    inline MurmurHash<32>::result_type MurmurHash<32>::hash(const void* key, int n, result_type seed) {
-        result_type h;
-        MurmurHash3_x86_32(key, n, SALT, (void*)&h);
-        return h;
-    }
     template<> MurmurHash<32>::result_type MurmurHash<32>::salt(bool fixed);
-    template<> const MurmurHash<32>::result_type MurmurHash<32>::SALT = MurmurHash<32>::salt();
+    template<> MurmurHash<32>::result_type MurmurHash<32>::hash(const void* key, int n, result_type seed);
+
 
     template<int NBITS_, typename HashTraits = MurmurHash<NBITS_>, typename WordType = uint32_t>
     struct Hashcode_base_ {
@@ -113,7 +109,7 @@ namespace zks {
 
     template<int N_, typename H_, typename W_>
     u8string to_u8string(Hashcode_base_<N_, H_, W_> const& h) {
-        typedef Hashcode_base_<N_, H_, W_>::word_t word_t;
+        typedef typename Hashcode_base_<N_, H_, W_>::word_t word_t;
         static int word_size = sizeof(word_t);
         static int bytes = Hashcode_base_<N_, H_, W_>::BYTES;
 
