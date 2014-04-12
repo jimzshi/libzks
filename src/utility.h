@@ -13,6 +13,14 @@
 #include <numeric>
 #include <functional>
 
+#if defined(_WIN32) || defined(_WIN64)
+#define OS_WINDOWS
+#elif defined(__gnu_linux__)
+#define OS_GNU_LINUX
+#else
+#define OS_UNKNOWN
+#endif
+
 namespace zks
 {
     template<typename T>
@@ -138,7 +146,12 @@ namespace zks
             return pos;
         }
     };
-}
+    
+    std::vector<zks::u8string> get_mac_address();
+
+    u8string as_hex(uint8_t c);
+
+} // namespace zks;
 
 namespace std {
 

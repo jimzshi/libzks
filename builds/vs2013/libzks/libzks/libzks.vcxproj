@@ -66,13 +66,18 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\hash.cpp" />
+    <ClCompile Include="..\..\..\..\src\MurmurHash3.cpp" />
     <ClCompile Include="..\..\..\..\src\simconf.cpp" />
     <ClCompile Include="..\..\..\..\src\simlog.cpp" />
     <ClCompile Include="..\..\..\..\src\u8string.cpp" />
+    <ClCompile Include="..\..\..\..\src\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\hash.h" />
     <ClInclude Include="..\..\..\..\src\iterator.h" />
     <ClInclude Include="..\..\..\..\src\libzks.h" />
+    <ClInclude Include="..\..\..\..\src\MurmurHash3.h" />
     <ClInclude Include="..\..\..\..\src\simconf.h" />
     <ClInclude Include="..\..\..\..\src\simlog.h" />
     <ClInclude Include="..\..\..\..\src\stopwatch.h" />

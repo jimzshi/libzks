@@ -27,6 +27,8 @@ int main(int argc, char* argv[]) {
 	//test_caseit();
 	//test_stopwatch(logger);
 	//test_simlog();
-    test_permutations();
+    //test_permutations();
+    test_mac();
+    test_hash1();
 	return 0;
 }

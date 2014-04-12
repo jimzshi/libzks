@@ -32,3 +32,11 @@ void test_permutations() {
 
     return;
 }
+
+void test_mac() {
+    std::vector<zks::u8string> mac_addrs = zks::get_mac_address();
+    for (size_t i = 0; i < mac_addrs.size(); ++i) {
+        ZKS_ERROR(logger, "utility", "mac[%d]: %s", i, mac_addrs[i].c_str());
+    }
+    return;
+}

@@ -3,3 +3,4 @@
 #include "test_simlog.h"
 #include "test_stopwatch.h"
 #include "test_utility.h"
+#include "test_hash.h"
