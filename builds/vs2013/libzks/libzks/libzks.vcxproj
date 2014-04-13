@@ -74,6 +74,8 @@
     <ClCompile Include="..\..\..\..\src\utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\src\array.h" />
+    <ClInclude Include="..\..\..\..\src\bit_hack.h" />
     <ClInclude Include="..\..\..\..\src\hash.h" />
     <ClInclude Include="..\..\..\..\src\iterator.h" />
     <ClInclude Include="..\..\..\..\src\libzks.h" />

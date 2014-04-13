@@ -28,7 +28,8 @@ int main(int argc, char* argv[]) {
 	//test_stopwatch(logger);
 	//test_simlog();
     //test_permutations();
-    test_mac();
-    test_hash1();
+    //test_mac();
+    //test_hash1();
+    test_bit();
 	return 0;
 }
