@@ -30,10 +30,10 @@ TEST_SRC=$(wildcard $(TEST_DIR)/*.cpp)
 TEST_OBJ=$(subst $(TEST_DIR),$(TMP_TEST),$(patsubst %.cpp,%.o,$(TEST_SRC)))
 TEST_DEP=$(patsubst %.o,%.d,$(TEST_OBJ))
 TEST_LD=-L$(OUTPUT_LIB) -lzks -lpthread
-TEST_CXXFLAG=$(CXXFLAG) -I$(OUTPUT_INC) 
+TEST_CXXFLAG=$(CXXFLAG) -I$(SRC_DIR) 
 
 all : pre-build $(A_TARGET) post-build
-test : all $(TEST_TARGET)
+test : all $(TEST_TARGET) 
 
 _debug_ :
 	echo $(HEADER)
@@ -54,6 +54,7 @@ pre-build :
 	$(MKDIR) $(OUTPUT_INC) $(OUTPUT_LIB) $(TMP) $(TMP_TEST)
 
 -include $(DEP)
+-include $(TEST_DEP)
 
 $(TMP)/%.o : $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAG) -c $< -o $@
@@ -67,7 +68,7 @@ $(TMP_TEST)/%.o : $(TEST_DIR)/%.cpp
 	$(CXX) $(TEST_CXXFLAG) -MM -MT $@ -MF $(@:.o=.d) $<
 
 $(TEST_TARGET) : $(TEST_OBJ)
-	$(CXX) $^ -o $@ $(TEST_LD)
+	$(CXX) $^ $(A_TARGET) -o $@ $(TEST_LD)
 
 post-build :
 	cp $(HEADER) $(OUTPUT_INC)

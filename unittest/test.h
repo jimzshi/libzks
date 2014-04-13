@@ -4,3 +4,5 @@
 #include "test_stopwatch.h"
 #include "test_utility.h"
 #include "test_hash.h"
+#include "test_bit.h"
+#include "test_array.h"

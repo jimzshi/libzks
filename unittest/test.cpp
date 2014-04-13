@@ -1,5 +1,6 @@
 //#include "test_locale.h"
 #include "test.h"
+
 #include <iostream>
 
 using namespace std;
@@ -30,6 +31,7 @@ int main(int argc, char* argv[]) {
     //test_permutations();
     //test_mac();
     //test_hash1();
-    test_bit();
+    //test_bit();
+	test_chunk_array();
 	return 0;
 }
