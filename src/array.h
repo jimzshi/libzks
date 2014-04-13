@@ -246,7 +246,7 @@ public:
             m_header_.resize(chunks);
         }
         for (int c = old_chunks; c < chunks; ++c) {
-            m_header_.at(c).reset(new Type[this->m_chunk_size_]);
+            m_header_.at(c).reset(new Type[this->m_chunk_size_], [](Type *p) { delete[] p; });
         }
     }
     void resize(int size) {
