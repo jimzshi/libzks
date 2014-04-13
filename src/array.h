@@ -5,11 +5,11 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <memory>
 
 namespace zks {
 
-template<typename T_, bool Is_ptr_ = std::is_pointer<T_>::value,
-		bool Is_array_ = std::is_array<T_>::value>
+template<typename T_>
 struct Ref_array_traits_ {
 	typedef T_* pointer;
 
@@ -27,42 +27,8 @@ struct Ref_array_traits_ {
 		size = sz;
 		data = new T_[sz]();
 	}
-	Ref_array_traits_(Ref_array_traits_ const& ra) {
-		size = ra.size;
-		ref = ++ra.ref;
-		data = ra.data;
-	}
-	Ref_array_traits_(Ref_array_traits_ && rv) {
-		size = rv.size;
-		ref = rv.ref;
-		data = rv.data;
-		rv.data = nullptr;
-	}
 	~Ref_array_traits_() {
-		if (Is_ptr_) {
-			for (int i = 0; i < size; ++i) {
-				delete data[i];
-				data[i] = nullptr;
-			}
-		} else if (Is_array_) {
-			for (int i = 0; i < size; ++i) {
-				delete[] data[i];
-			}
-		}
 		delete[] data;
-	}
-	Ref_array_traits_ const& operator=(Ref_array_traits_ const& ra) {
-		size = ra.size;
-		ref = ++ra.ref;
-		data = ra.data;
-		return *this;
-	}
-	Ref_array_traits_ const& operator=(Ref_array_traits_&& ra) {
-		size = ra.size;
-		ref = ra.ref;
-		data = ra.data;
-		ra.data = nullptr;
-		return *this;
 	}
 	Ref_array_traits_* detach() {
 		if (ref == 1) {
@@ -75,14 +41,19 @@ struct Ref_array_traits_ {
 	}
 }; //Ref_array_traits_
 
-template<typename T_, typename Impl_ = Ref_array_traits_<T_> >
+template<typename T_, 
+    typename StorageT_ = std::conditional_t<std::is_pointer<T_>::value, std::shared_ptr<std::remove_pointer_t<T_>>, T_>,
+    typename Impl_ = Ref_array_traits_<StorageT_> 
+>
 class LazyArray {
 public:
-	typedef Impl_ impl_t;
+    typedef T_ Type;
+    typedef StorageT_ StorageType;
 
 protected:
-
+	typedef Impl_ impl_t;
 	impl_t* rep;
+
 public:
 	LazyArray() :
 			rep(new impl_t) {
@@ -117,34 +88,27 @@ public:
 	int ref() const {
 		return rep->ref;
 	}
-	const T_& operator[](int sz) const {
+    StorageType const& operator[](int sz) const {
 		return *(rep->data + sz);
 	}
-	T_ const *begin() const {
+    StorageType const* begin() const {
 		return rep->data;
 	}
-	T_ const *end() const {
+    StorageType const* end() const {
 		return rep->data + rep->size;
 	}
 
-	T_& at(int sz) {
+    StorageType& at(int sz) {
 		rep = rep->detach();
 		return *(rep->data + sz);
 	}
 
-	int insert(int pos, const T_& v) {
+    int insert(int pos, StorageType const& v) {
 		if (pos > rep->size || pos < 0) {
 			return -1;
 		}
 		size_t nsz(rep->size + 1);
 		impl_t* p = new impl_t(nsz);
-//		  for(int i=0; i<pos; ++i) {
-//			(p->data)[i] = (rep->data)[i];
-//		  }
-//		  (p->data)[pos] = v;
-//		  for(size_t i=pos+1; i<nsz; ++i) {
-//			(p->data)[i] = (rep->data)[i-1];
-//		  }
 		std::copy(rep->data, rep->data + pos, p->data);
 		(p->data)[pos] = v;
 		std::copy(rep->data + pos, rep->data + rep->size, p->data + pos + 1);
@@ -155,12 +119,9 @@ public:
 		return pos;
 	}
 
-	void push_back(const T_& v) {
+    void push_back(StorageType const& v) {
 		size_t sz = rep->size;
 		impl_t* p = new impl_t(sz + 1);
-//		  for(size_t i=0; i<sz; ++i) {
-//			(p->data)[i] = (rep->data)[i];
-//		  }
 		std::copy(rep->data, rep->data + sz, p->data);
 		(p->data)[sz] = v;
 		if (--rep->ref == 0) {
@@ -179,12 +140,6 @@ public:
 		}
 		size_t new_size = rep->size - n;
 		impl_t* p = new impl_t(new_size);
-//		  for(int i=0; i<pos; ++i) {
-//			(p->data)[i] = (rep->data)[i];
-//		  }
-//		  for(size_t i=pos; i<new_size; ++i) {
-//			(p->data)[i] = (rep->data)[n+i];
-//		  }
 		std::copy(rep->data, rep->data + pos, p->data);
 		std::copy(rep->data + pos + n, rep->data + rep->size, p->data + pos);
 		if (--rep->ref == 0) {
@@ -224,6 +179,10 @@ public:
 	}
 };// LazyArray
 
+
+template<typename T_, int ChunkSize_, int BlockSize_, typename Vec_ >
+class ChunkArray;
+
 template<typename T_,
 	class = std::enable_if_t<(!std::is_pointer<T_>::value && !std::is_reference<T_>::value)>
 >
@@ -235,36 +194,65 @@ struct Chunk_type_traits_ {
 	typedef Type_ const& const_ref;
 };
 
-template<typename T_, int ChunkSize_, int BlockSize_>
+template<typename T_, int ChunkSize_, int BlockSize_, typename Vec_>
 struct Chunk_size_traits_ {
+    typedef ChunkArray<T_, ChunkSize_, BlockSize_, Vec_> ChunkArray_;
     typedef typename Chunk_type_traits_<T_>::Type_ Ty_;
 	static const int m_type_bytes_ = sizeof(Ty_);
 	static const int m_block_bytes_ = zks::NextPowerOf2<int, BlockSize_>::value;
-	static const int m_chunk_size_ = (ChunkSize_ <= m_block_bytes_ / m_type_bytes_) ?
-					ChunkSize_ 	: (m_block_bytes_/m_type_bytes_);
+    static const bool m_using_block_ = (ChunkSize_ == 0) || (ChunkSize_ > (m_block_bytes_ / m_type_bytes_));
+    static const int m_chunk_size_ = (ChunkSize_ == 0) || (ChunkSize_ > (m_block_bytes_ / m_type_bytes_)) ?
+        (m_block_bytes_ / m_type_bytes_) : ChunkSize_;
 	static const int m_chunk_mask_ = m_block_bytes_ - 1;
 	static const int m_chunk_shift_ = zks::LogBase2 <int, m_block_bytes_>::value ;
+
 	int m_size_;
+
+    int size_() const { return m_size_; }
+    int chunk_index_(int idx) const { return m_using_block_ ? (idx >> m_chunk_shift_) : (idx / m_chunk_size_); }
+    int sub_index_(int idx) const { return m_using_block_ ? (idx & m_chunk_mask_) : (idx % m_chunk_size_); }
 };
 
-template<typename T_, int ChunkSize_, int BlockSize_ = 4096,
-	typename Type_traits_ = Chunk_type_traits_<T_>,
-	typename Size_traits_ = Chunk_size_traits_<T_, ChunkSize_, BlockSize_>,
-	typename Vec_ = LazyArray<typename Type_traits_::pointer>
+template<typename T_, int ChunkSize_ = 0, int BlockSize_ = 4096,
+	typename Vec_ = LazyArray<typename Chunk_type_traits_<T_>::pointer>
 >
-class ChunkArray : protected Size_traits_ {
+class ChunkArray : 
+    private Chunk_size_traits_<T_, ChunkSize_, BlockSize_, Vec_>,
+    private Chunk_type_traits_<T_>
+{
 public:
-	typedef typename Type_traits_::Type_ Ty_;
-	typedef typename Type_traits_::pointer pointer;
-	typedef typename Type_traits_::reference reference;
-	typedef typename Type_traits_::const_ptr const_ptr;
-	typedef typename Type_traits_::const_ref const_ref;
-	typedef Vec_ Header_;
-	typedef Size_traits_ Sizetraits_base_;
+    typedef T_ Type;
+    typedef typename Vec_::StorageType StorageType;
+private:
+	typedef Chunk_size_traits_<T_, ChunkSize_, BlockSize_, Vec_> Sizetraits_base_;
+    friend Sizetraits_base_;
 protected:
-	Header_ m_header_;
+	typedef Vec_ Header;
+    Header m_header_;
+    
 public:
-	int size() const { return this->m_size_; }
+    ChunkArray() {}
+    ChunkArray(int n) { resize(n); }
+
+    int size() const { return this->size_(); }
+    int capacity() const {
+        return this->m_chunk_size_ * this->m_header_.size();
+    }
+
+    void reserve(int size) { 
+        int chunks = this->chunk_index_(size - 1) + 1;
+        int old_chunks = m_header_.size();
+        if (old_chunks < chunks) {
+            m_header_.resize(chunks);
+        }
+        for (int c = old_chunks; c < chunks; ++c) {
+            m_header_.at(c).reset(new Type[this->m_chunk_size_]);
+        }
+    }
+    void resize(int size) {
+        reserve(size);
+        this->m_size_ = size;
+    }
 };
 
 } //namespace zks;

@@ -77,6 +77,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\unittest\test.h" />
+    <ClInclude Include="..\..\..\..\unittest\test_array.h" />
+    <ClInclude Include="..\..\..\..\unittest\test_bit.h" />
     <ClInclude Include="..\..\..\..\unittest\test_conf.h" />
     <ClInclude Include="..\..\..\..\unittest\test_hash.h" />
     <ClInclude Include="..\..\..\..\unittest\test_locale.h" />
