@@ -221,10 +221,11 @@ int test_code() {
     ZKS_ERROR(logger, "test", "user's loc: %s", loc.name().c_str());
     std::locale latin1 = std::locale("en_US.iso88591");
     ZKS_ERROR(logger, "test", "latin1 name: %s", latin1.name().c_str());
-    std::wcout.imbue(latin1);
     std::string latin1str{ "\x33\x31\xEA\x35\x36" };
     u8string u8str = zks::unicode::decode("en_US.iso88591", latin1str);
     ZKS_ERROR(logger, "test", "decode from latin1: %s", u8str.c_str());
+    std::string gb18030str = zks::unicode::encode("zh_CN.gb18030", u8str);
+    ZKS_ERROR(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
     return 0;
 #elif defined(OS_WINDOWS)
     std::locale loc = std::locale("");
