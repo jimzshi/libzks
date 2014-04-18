@@ -590,20 +590,51 @@ namespace unicode {
 		}
 		return zks::unicode::txt_format::unknown;
 	}
+} /* namespace unicode */
 
-	u8string decode(const char* loc_name, std::string const& str) {
-		unicode::Mbwc_cvt iconv(new unicode::Mbwc_codecvt(loc_name));
-		std::wstring wstr = iconv.from_bytes(str);
-		return u8string{ wstr };
-	}
+} /* namespace zks */
 
-	std::string encode(const char* loc_name, u8string const& u8str) {
-		unicode::Mbwc_cvt iconv(new unicode::Mbwc_codecvt(loc_name));
-		std::string ret = iconv.to_bytes(u8str.wstring());
-		return ret;
-	}
-
+#ifdef OS_GNU_LINUX
+zks::u8string zks::unicode::decode(const char* loc_name, std::string const& str) {
+    zks::unicode::Mbwc_cvt iconv(new zks::unicode::Mbwc_codecvt(loc_name));
+    std::wstring wstr = iconv.from_bytes(str);
+    return zks::u8string{ wstr };
 }
 
+std::string zks::unicode::encode(const char* loc_name, zks::u8string const& u8str) {
+    zks::unicode::Mbwc_cvt iconv(new zks::unicode::Mbwc_codecvt(loc_name));
+    std::string ret = iconv.to_bytes(u8str.wstring());
+    return ret;
 }
+
+#elif defined(OS_WINDOWS)
+#define _AMD64_
+#include <Stringapiset.h>
+
+zks::u8string zks::unicode::decode(int cp, std::string const& str) {
+    std::wstring wstr;
+    wstr.resize(2 * str.size() + 1);
+    int ok = ::MultiByteToWideChar(cp, 0, str.data(), -1, &wstr[0], wstr.size());
+    if (!ok) {
+        return zks::u8string{ "" };
+    }
+    return zks::u8string{ wstr };
+}
+
+std::string zks::unicode::encode(int cp, zks::u8string const& u8str) {
+    std::wstring wstr = u8str.wstring();
+    std::string ret;
+    int len = ::WideCharToMultiByte(cp, 0, wstr.data(), -1, &ret[0], 0, NULL, NULL);
+    if (len == 0) {
+        return ret;
+    }
+    ret.resize(len, '\0');
+    len = ::WideCharToMultiByte(cp, 0, wstr.data(), -1, &ret[0], len, NULL, NULL);
+    if (len == 0) {
+        return std::string{};
+    }
+    return ret;
+}
+
+#endif
 

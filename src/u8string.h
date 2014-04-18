@@ -1,18 +1,7 @@
 #ifndef _ZKS_U8STRING_H
 #define _ZKS_U8STRING_H
 
-#if defined (_WIN32) && defined(__AFX_H__)
-#define _HAS_WIN32_CSTRING
-#endif
-
-#if defined(_WIN32)
-#define _HAS_CHAR_T_SUPPORT
-#endif
-
-#if defined(_WIN32) || defined(__clang__)
-#define _HAS_CODECVT
-#endif
-
+#include "configure.h"
 #include "iterator.h"
 
 #include <string>
@@ -24,13 +13,6 @@
 #include <type_traits>
 #include <locale>
 
-
-
-//#undef _ZKS_U8STRING_NOVALIDATION
-#define _ZKS_U8STRING_INDEX 1
-
-
-
 namespace zks {
 
 namespace unicode {
@@ -40,8 +22,11 @@ namespace unicode {
         using Facet::Facet; // inherit constructors
         ~deletable_facet() {}
     };
-    //typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
+#ifdef OS_WINDOWS
+    typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
+#elif defined(OS_GNU_LINUX)
     typedef deletable_facet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> Mbwc_codecvt;
+#endif
     typedef std::wstring_convert<Mbwc_codecvt> Mbwc_cvt;
 
 //helpers
@@ -753,8 +738,13 @@ namespace unicode {
 		enum txt_format { utf16le, utf16be, utf8bom, utf8, unknown };
 		txt_format txt_peek_header(u8string const& fn);
 
+#ifdef OS_GNU_LINUX
 		u8string decode(const char* loc_name, std::string const& str);
 		std::string encode(const char* loc_name, u8string const& u8str);
+#elif defined(OS_WINDOWS)
+		u8string decode(int cp, std::string const& str);
+		std::string encode(int cp, u8string const& u8str);
+#endif
 	} /* namespace unicode */
 
 

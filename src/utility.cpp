@@ -1,3 +1,4 @@
+#include "configure.h"
 #include "utility.h"
 
 namespace zks {
