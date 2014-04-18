@@ -566,39 +566,44 @@ namespace zks {
     }
 #endif
 
-    txt_format txt_peek_header(u8string const& fn) {
-        std::ifstream fin(fn.c_str(), std::ios_base::binary);
-        char header[3] = { 0 };
-        fin.read(header, 3);
-        if (fin.gcount() == 3) {
-            if (header[0] == (char)0xfe && header[1] == (char)0xff) {
-                return zks::txt_format::utf16be;
-            }
-            else if (header[0] == (char)0xff && header[1] == (char)0xfe) {
-                return zks::txt_format::utf16le;
-            }
-            else if (header[0] == (char)0xef && header[1] == (char)0xbb && header[2] == (char)0xbf) {
-                return zks::txt_format::utf8bom;
-            }
-        }
-        std::string line;
-        std::getline(fin, line);
-        if (unicode::validate(line.data())) {
-            return zks::txt_format::utf8;
-        }
-        return zks::txt_format::unknown;
-    }
+namespace unicode {
 
-    u8string decode(const char* loc_name, std::string const& str) {
-        unicode::Mbwc_cvt iconv(new unicode::Mbwc_codecvt(loc_name));
-        std::wstring wstr = iconv.from_bytes(str);
-        return u8string{ wstr };
-    }
+	txt_format txt_peek_header(u8string const& fn) {
+		std::ifstream fin(fn.c_str(), std::ios_base::binary);
+		char header[3] = { 0 };
+		fin.read(header, 3);
+		if (fin.gcount() == 3) {
+			if (header[0] == (char)0xfe && header[1] == (char)0xff) {
+				return zks::unicode::txt_format::utf16be;
+			}
+			else if (header[0] == (char)0xff && header[1] == (char)0xfe) {
+				return zks::unicode::txt_format::utf16le;
+			}
+			else if (header[0] == (char)0xef && header[1] == (char)0xbb && header[2] == (char)0xbf) {
+				return zks::unicode::txt_format::utf8bom;
+			}
+		}
+		std::string line;
+		std::getline(fin, line);
+		if (unicode::validate(line.data())) {
+			return zks::unicode::txt_format::utf8;
+		}
+		return zks::unicode::txt_format::unknown;
+	}
 
-    std::string encode(const char* loc_name, u8string const& u8str) {
-        unicode::Mbwc_cvt iconv(new unicode::Mbwc_codecvt(loc_name));
-        std::string ret = iconv.to_bytes(u8str.wstring());
-        return ret;
-    }
+	u8string decode(const char* loc_name, std::string const& str) {
+		unicode::Mbwc_cvt iconv(new unicode::Mbwc_codecvt(loc_name));
+		std::wstring wstr = iconv.from_bytes(str);
+		return u8string{ wstr };
+	}
+
+	std::string encode(const char* loc_name, u8string const& u8str) {
+		unicode::Mbwc_cvt iconv(new unicode::Mbwc_codecvt(loc_name));
+		std::string ret = iconv.to_bytes(u8str.wstring());
+		return ret;
+	}
+
+}
+
 }
 

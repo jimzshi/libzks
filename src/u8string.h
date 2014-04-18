@@ -40,8 +40,8 @@ namespace unicode {
         using Facet::Facet; // inherit constructors
         ~deletable_facet() {}
     };
-    typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
-    //typedef deletable_facet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> Mbwc_codecvt;
+    //typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
+    typedef deletable_facet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> Mbwc_codecvt;
     typedef std::wstring_convert<Mbwc_codecvt> Mbwc_cvt;
 
 //helpers
@@ -749,13 +749,15 @@ namespace unicode {
 	// 21.4.8.8, swap:
 	inline void swap(u8string& lhs, u8string& rhs) { lhs.swap(rhs); }
 
-	enum txt_format { utf16le, utf16be, utf8bom, utf8, unknown };
-	txt_format txt_peek_header(u8string const& fn);
+	namespace unicode {
+		enum txt_format { utf16le, utf16be, utf8bom, utf8, unknown };
+		txt_format txt_peek_header(u8string const& fn);
 
-    u8string decode(const char* loc_name, std::string const& str);
-    std::string encode(const char* loc_name, u8string const& u8str);
+		u8string decode(const char* loc_name, std::string const& str);
+		std::string encode(const char* loc_name, u8string const& u8str);
+	} /* namespace unicode */
 
-	
+
 
 } /*namespace zks*/
 
