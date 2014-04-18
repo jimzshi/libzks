@@ -34,6 +34,16 @@
 namespace zks {
 
 namespace unicode {
+
+    template<class Facet>
+    struct deletable_facet : Facet {
+        using Facet::Facet; // inherit constructors
+        ~deletable_facet() {}
+    };
+    typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
+    //typedef deletable_facet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> Mbwc_codecvt;
+    typedef std::wstring_convert<Mbwc_codecvt> Mbwc_cvt;
+
 //helpers
 #ifdef _HAS_CHAR_T_SUPPORT
     extern std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> u16u8_cvt;
@@ -740,8 +750,11 @@ namespace unicode {
 	inline void swap(u8string& lhs, u8string& rhs) { lhs.swap(rhs); }
 
 	enum txt_format { utf16le, utf16be, utf8bom, utf8, unknown };
-
 	txt_format txt_peek_header(u8string const& fn);
+
+    u8string decode(const char* loc_name, std::string const& str);
+    std::string encode(const char* loc_name, u8string const& u8str);
+
 	
 
 } /*namespace zks*/
