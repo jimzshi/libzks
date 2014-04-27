@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
     //test_mac();
     //test_hash1();
     //test_bit();
-	//test_chunk_array();
-    test_code();
+	test_chunk_array();
+    //test_code();
 	return 0;
 }

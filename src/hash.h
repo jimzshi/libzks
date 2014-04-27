@@ -8,6 +8,9 @@
 #include <cstdint>
 #include <cstring>
 #include <array>
+#include <functional>
+#include <vector>
+#include <unordered_map>
 
 namespace zks {
 
@@ -127,6 +130,64 @@ namespace zks {
 
     typedef Hashcode_base_<32> HashCode32;
 
+    template<typename T_,
+        typename Hash_,
+        typename Equal_ = std::equal_to<T_>,
+        typename Vec_ = std::vector<T_>,
+        typename HT_ = std::unordered_map<T_, size_t, Hash_, Equal_>
+    > class HashVector {
+    public:
+        typedef T_ Type;
+        typedef Vec_ vector_t;
+        typedef HT_ hashtable_t;
+        static const size_t npos = size_t(-1);
+
+    private:
+        vector_t m_vec_;
+        hashtable_t m_hashtable_;
+
+    public:
+        HashVector() {}
+        ~HashVector() {}
+
+        size_t find(Type const& v) {
+            auto iter = m_hashtable_.find(v);
+            if (iter != m_hashtable_.end()) {
+                return iter->second;
+            }
+            return npos;
+        }
+        bool contains(Type const& v) {
+            return m_hashtable_.find(v) != m_hashtable_.end();
+        }
+        size_t push_back(Type const& v) {
+            auto idx = find(v);
+            if (idx != npos) {
+                return idx;
+            }
+            m_vec_.push_back(v);
+            idx = m_vec_.size() - 1;
+            m_hashtable_[v] = idx;
+            return idx;
+        }
+        void erase(Type const& v) {
+            if (!contains(v)) {
+                return;
+            }
+            m_hashtable_.erase(v);
+            return;
+        }
+        size_t size() const {
+            return m_vec_.size();
+        }
+        void reserve(size_t sz) {
+            m_vec_.reserve(sz);
+        }
+        void shrink_to_fit() {
+            m_vec_.shrink_to_fit();
+        }
+    };
+        
 }
 
 #endif
