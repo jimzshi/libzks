@@ -3,7 +3,7 @@
 
 namespace zks {
 
-#ifdef OS_WINDOWS
+#ifdef ZKS_OS_WINDOWS_
 
 #include <winsock2.h>
 #include <IPHlpApi.h>
@@ -52,7 +52,7 @@ namespace zks {
         return ret;
     }
 
-#elif defined (OS_GNU_LINUX)
+#elif defined (ZKS_OS_GNULINUX_)
 
 #include <unistd.h>
 #include <net/if.h>

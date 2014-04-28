@@ -594,7 +594,7 @@ namespace unicode {
 
 } /* namespace zks */
 
-#ifdef OS_GNU_LINUX
+#ifdef ZKS_OS_GNULINUX_
 zks::u8string zks::unicode::decode(const char* loc_name, std::string const& str) {
     zks::unicode::Mbwc_cvt iconv(new zks::unicode::Mbwc_codecvt(loc_name));
     std::wstring wstr = iconv.from_bytes(str);
@@ -607,7 +607,7 @@ std::string zks::unicode::encode(const char* loc_name, zks::u8string const& u8st
     return ret;
 }
 
-#elif defined(OS_WINDOWS)
+#elif defined(ZKS_OS_WINDOWS_)
 #define _AMD64_
 #include <Stringapiset.h>
 

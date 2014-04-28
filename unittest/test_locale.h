@@ -216,7 +216,7 @@ int test_caseit() {
 }
 
 int test_code() {
-#ifdef OS_GNU_LINUX
+#ifdef ZKS_OS_GNULINUX_
     std::locale loc = std::locale("");
     ZKS_ERROR(logger, "test", "user's loc: %s", loc.name().c_str());
     std::locale latin1 = std::locale("en_US.iso88591");
@@ -227,7 +227,7 @@ int test_code() {
     std::string gb18030str = zks::unicode::encode("zh_CN.gb18030", u8str);
     ZKS_ERROR(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
     return 0;
-#elif defined(OS_WINDOWS)
+#elif defined(ZKS_OS_WINDOWS_)
     std::locale loc = std::locale("");
     ZKS_ERROR(logger, "test", "user's loc: %s", loc.name().c_str());
     std::locale latin1 = std::locale(".1252");

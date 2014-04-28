@@ -22,9 +22,9 @@ namespace unicode {
         using Facet::Facet; // inherit constructors
         ~deletable_facet() {}
     };
-#ifdef OS_WINDOWS
+#ifdef ZKS_OS_WINDOWS_
     typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
-#elif defined(OS_GNU_LINUX)
+#elif defined(ZKS_OS_GNULINUX_)
     typedef deletable_facet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> Mbwc_codecvt;
 #endif
     typedef std::wstring_convert<Mbwc_codecvt> Mbwc_cvt;
@@ -738,10 +738,10 @@ namespace unicode {
 		enum txt_format { utf16le, utf16be, utf8bom, utf8, unknown };
 		txt_format txt_peek_header(u8string const& fn);
 
-#ifdef OS_GNU_LINUX
+#ifdef ZKS_OS_GNULINUX_
 		u8string decode(const char* loc_name, std::string const& str);
 		std::string encode(const char* loc_name, u8string const& u8str);
-#elif defined(OS_WINDOWS)
+#elif defined(ZKS_OS_WINDOWS_)
 		u8string decode(int cp, std::string const& str);
 		std::string encode(int cp, u8string const& u8str);
 #endif

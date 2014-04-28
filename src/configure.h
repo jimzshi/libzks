@@ -2,22 +2,22 @@
 #define ZKS_CONFIGURE_H_
 
 #if defined(_WIN32) || defined(_WIN64)
-#define OS_WINDOWS
+#define ZKS_OS_WINDOWS_
 #elif defined(__gnu_linux__)
-#define OS_GNU_LINUX
+#define ZKS_OS_GNULINUX_
 #else
 #define OS_UNKNOWN
 #endif
 
-#if defined (OS_WINDOWS) && defined(__AFX_H__)
+#if defined (ZKS_OS_WINDOWS_) && defined(__AFX_H__)
 #define _HAS_WIN32_CSTRING
 #endif
 
-#if defined(OS_WINDOWS)
+#if defined(ZKS_OS_WINDOWS_)
 #define _HAS_CHAR_T_SUPPORT
 #endif
 
-#if defined(OS_WINDOWS) || defined(__clang__)
+#if defined(ZKS_OS_WINDOWS_) || defined(__clang__)
 #define _HAS_CODECVT
 #endif
 
