@@ -67,7 +67,7 @@ $(TMP_TEST)/%.o : $(TEST_DIR)/%.cpp
 	$(CXX) $(TEST_CXXFLAG) -c $< -o $@
 	$(CXX) $(TEST_CXXFLAG) -MM -MT $@ -MF $(@:.o=.d) $<
 
-$(TEST_TARGET) : $(TEST_OBJ)
+$(TEST_TARGET) : $(TEST_OBJ) $(A_TARGET)
 	$(CXX) $^ $(A_TARGET) -o $@ $(TEST_LD)
 
 post-build :

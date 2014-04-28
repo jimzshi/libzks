@@ -38,6 +38,7 @@ namespace zks {
 				u8string quote;
 				u8string escape;
 				std::array<u8string, Column::csize> column;
+				std::bitset<Column::csize> fieldset;
 
 				Format() : 
 					//locale(""), 
@@ -51,8 +52,22 @@ namespace zks {
 					column[Column::GROUP] = "<%s>";
 					column[Column::LEVEL] = "[%s]";
 					column[Column::MESSAGE] = "%s";
+					fieldset.set();
 				}
 				~Format() {}
+				void update_fieldset() {
+					fieldset.set();
+					for(size_t i = 0; i<column.size(); ++i) {
+						if(column[i].empty()) {
+							if(i == Column::EPOCHTIME || i==Column::THREAD || i== Column::LINE) {
+								column[i] = "%d";
+							} else {
+								column[i] = "%s";
+							}
+							fieldset.reset(i);
+						}
+					}
+				}
 			};
 			struct Buff {
 				bool enable;

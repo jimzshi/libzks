@@ -64,6 +64,7 @@ namespace zks
             size_ = rhs.size_;
             std::copy(rhs.cardinals_, rhs.cardinals_ + rank, cardinals_);
             std::copy(rhs.indices_, rhs.indices_ + rank, indices_);
+            return *this;
         }
         Self& operator=(Self&& rhs) {
             size_ = rhs.size_;
@@ -71,6 +72,7 @@ namespace zks
             rhs.cardinals_ = nullptr;
             indices_ = rhs.indices_;
             rhs.cardinals_ = nullptr;
+            return *this;
         }
 
         Self const& seekp(index_t const* v) {
@@ -114,6 +116,7 @@ namespace zks
             for (size_t i = 0; i < rank; ++i) {
                 if (indices_[i] >= cardinals_[i] || indices_[i] < 0) return false;
             }
+            return true;
         }
         index_t index(size_t i) const {
             if (i < 0 || i >= rank) {

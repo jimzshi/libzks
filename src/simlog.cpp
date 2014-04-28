@@ -30,19 +30,18 @@ namespace zks {
 
 			std::va_list arg_list;
 			va_start(arg_list, fmt);
-			msg_buff_.format(config.buff.msg_max_size, fmt, arg_list);
+			msg_buff_ = msg_buff_.format(config.buff.msg_max_size, fmt, arg_list).quote();
 			va_end(arg_list);
-
 			line_buff_.format(config.buff.line_buff_size, fmt_str_.c_str(),
-				get_datetime_().c_str(),
-				(size_t) std::chrono::duration_cast<std::chrono::microseconds>(clock_t::now() - epoch_).count(),
-				thread_hash_(std::this_thread::get_id()),
-				file,
-				func,
-				line,
-				group.c_str(),
-				level_string[level].c_str(),
-				msg_buff_.c_str()
+				config.format.fieldset[Column::DATETIME] ? get_datetime_().c_str() : "",
+				config.format.fieldset[Column::EPOCHTIME] ? (size_t) std::chrono::duration_cast<std::chrono::microseconds>(clock_t::now() - epoch_).count() : 0,
+				config.format.fieldset[Column::THREAD] ? thread_hash_(std::this_thread::get_id()) : 0,
+				config.format.fieldset[Column::FILE] ? file : "",
+				config.format.fieldset[Column::FUNC] ? func : "",
+				config.format.fieldset[Column::LINE] ? line : 0,
+				config.format.fieldset[Column::GROUP] ? group.c_str() : "",
+				config.format.fieldset[Column::LEVEL] ? level_string[level].c_str() : "",
+				config.format.fieldset[Column::MESSAGE] ? msg_buff_.c_str() : ""
 				);
 			
 			if (config.buff.enable) {
@@ -156,6 +155,7 @@ namespace zks {
 		if (ini.has_option("format", "level")) {
 			ini.option("format", "level", &config.format.column[Column::LEVEL]);
 		}
+		config.format.update_fieldset();
 
 		//buff
 		if (ini.has_option("buff", "enable")) {
