@@ -105,6 +105,14 @@ namespace zks {
             rep = rep->detach();
             return *(rep->data + sz);
         }
+        Type& last() {
+            rep = rep->detach();
+            return *(rep->data + rep->size - 1);
+        }
+        Type* data() {
+            rep = rep->detach();
+            return rep->data;
+        }
 
         int insert(int pos, StorageType const& v) {
             if (pos > rep->size || pos < 0) {
@@ -136,7 +144,7 @@ namespace zks {
         Type& append() {
             size_t sz = rep->size;
             impl_t* p = new impl_t(sz + 1);
-            std::copyvoid(rep->data, rep->data + sz, p->data);
+            std::copy(rep->data, rep->data + sz, p->data);
             if (--rep->ref == 0) {
                 delete rep;
             }
@@ -224,7 +232,8 @@ namespace zks {
     };
 
     template<typename T_, int ChunkSize_ = 0, int ChunkBytes_ = 4096,
-        typename Vec_ = LazyArray<typename Chunk_type_traits_<T_>::pointer>
+        //typename Vec_ = LazyArray<typename Chunk_type_traits_<T_>::pointer>
+        typename Vec_ = LazyArray<LazyArray<T_> >
     >
     class ChunkArray :
         private Chunk_size_traits_<T_, ChunkSize_, ChunkBytes_, Vec_>,
@@ -261,7 +270,8 @@ namespace zks {
             m_header_.resize(new_chunks);
             if (new_chunks > old_chunks) {
                 for (int c = old_chunks; c < new_chunks; ++c) {
-                    m_header_.at(c).reset(new Type[this->m_chunk_size_], [](Type *p) { delete[] p; }); //TODO: decoupled with shared_ptr interface
+                    //m_header_.at(c).reset(new Type[this->m_chunk_size_], [](Type *p) { delete[] p; }); //TODO: decoupled with shared_ptr interface
+                    m_header_.at(c).resize(this->m_chunk_size_);
                 }
             }
             else if (new_chunks < this->chunks_cover_(size())) {
@@ -288,7 +298,8 @@ namespace zks {
         }
         void append_chunk() {
             ChunkStorageType& new_chunk = m_header_.append();
-            new_chunk.reset(new Type[this->m_chunk_size_], [](Type *p) { delete[] p; });
+            //new_chunk.reset(new Type[this->m_chunk_size_], [](Type *p) { delete[] p; });
+            new_chunk.resize(this->m_chunk_size_);
             return;
         }
         int push_back(Type const& v) {
@@ -300,28 +311,28 @@ namespace zks {
             ++this->m_size_;
         }
         Type const& operator[](int idx) const {
-            return m_header_[this->chunk_index_(idx)].get()[this->sub_index_(idx)];
+            return m_header_[this->chunk_index_(idx)][this->sub_index_(idx)];
         }
         Type& operator[](int idx) {
-            return m_header_[this->chunk_index_(idx)].get()[this->sub_index_(idx)];
+            return m_header_.at(this->chunk_index_(idx)).at(this->sub_index_(idx));
         }
         Type const& at(int idx) const {
             if (idx >= size()) {
                 throw std::out_of_range("ChunkArray index can't be bigger than its size.");
             }
-            return m_header_[this->chunk_index_(idx)].get()[this->sub_index_(idx)];
+            return m_header_[this->chunk_index_(idx)][this->sub_index_(idx)];
         }
         Type& at(int idx) {
             if (idx >= size()) {
                 throw std::out_of_range("ChunkArray index can't be bigger than its size.");
             }
-            return m_header_[this->chunk_index_(idx)].get()[this->sub_index_(idx)];
+            return m_header_.at(this->chunk_index_(idx)).at(this->sub_index_(idx));
         }
         Type& last() {
             return operator[](size() - 1);
         }
         Type* chunk(int c) {
-            return m_header_[c].get();
+            return m_header_[c].data();
         }
         
     };
