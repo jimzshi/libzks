@@ -204,7 +204,7 @@ namespace zks {
     class ChunkArray;
 
     template<typename T_,
-    class = std::enable_if_t < (!std::is_pointer<T_>::value && !std::is_reference<T_>::value) >
+        class = std::enable_if_t < (!std::is_pointer<T_>::value && !std::is_reference<T_>::value) >
     >
     struct Chunk_type_traits_ {
         typedef typename std::remove_cv<T_>::type Type_;
@@ -242,9 +242,7 @@ namespace zks {
     public:
         typedef T_ Type;
         typedef typename Vec_::StorageType ChunkStorageType;
-    private:
-        typedef Chunk_size_traits_<T_, ChunkSize_, ChunkBytes_, Vec_> Sizetraits_base_;
-        friend Sizetraits_base_;
+
     protected:
         typedef Vec_ Header;
         Header m_header_;
@@ -309,6 +307,7 @@ namespace zks {
             }
             operator[](size()) = v;
             ++this->m_size_;
+            return sz;
         }
         Type const& operator[](int idx) const {
             return m_header_[this->chunk_index_(idx)][this->sub_index_(idx)];
