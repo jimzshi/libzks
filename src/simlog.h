@@ -10,6 +10,7 @@
 #include <ctime>
 #include <memory>
 #include <thread>
+#include <bitset>
 
 namespace zks {
 
