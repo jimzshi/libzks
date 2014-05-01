@@ -237,6 +237,16 @@ namespace zks
         {
             m_container_.shrink_to_fit();
         }
+        void clear_container() {
+            m_container_.clear();
+        }
+        void clear_hash() {
+            m_hashtable_.clear();
+        }
+        void clear() {
+            clear_hash();
+            clear_container();
+        }
     };
 
     template<typename T>

@@ -69,8 +69,6 @@ void test_hashvector(int argc, char* argv[])
     std::vector<zks::u8string> items;
     zks::Hash_container_<zks::u8string, std::vector<zks::u8string> > field_symbols;
     size_t num=0;
-    zks::StopWatch watch;
-    watch.start("here");
     for (; zks::getline(ifs, line); ++num) {
         items = line.trim_spaces().split();
         if(items.size() != field_size) {
@@ -81,12 +79,13 @@ void test_hashvector(int argc, char* argv[])
         }
         field_symbols.push_back(items[field_num]);
     }
-    watch.tick("read");
+
     ZKS_ERROR(logger, "hashvector", "read in %d lines, %d symbols", num, field_symbols.size());
     for(size_t i=0; i<field_symbols.size(); ++i) {
         ZKS_ERROR(logger, "hashvector", "index(%d): %s", i, field_symbols[i].c_str());
     }
-    watch.tick("output");
-    ZKS_ERROR(logger, "hashvector", "watch: %s", watch.u8str().c_str());
+
+    char c = std::getchar();
+
     return ;
 }
