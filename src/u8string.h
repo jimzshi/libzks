@@ -1065,7 +1065,8 @@ namespace zks
         {
             return trim_left(s).trim_right(s);
         }
-        u8string trim_spaces(std::locale const& loc = std::locale("")) const;
+        u8string trim_spaces() const;
+        u8string trim_spaces(std::locale const& loc) const;
         u8string quote(u8string const& q = "\"", u8string const& escape = "\"") const;
         u8string unquote(u8string const& q = "\"", u8string const& escape = "\"") const;
         std::vector<u8string> split(bool raw_item, u8string const& separator, u8string const& quote, u8string const& escape) const;
@@ -1388,7 +1389,7 @@ struct hash<zks::u8string>
 
     value_type operator()(argument_type const& s) const
     {
-        return std::hash<std::string>()(s.data());
+        return std::hash<std::string>()(s.str());
     }
 };
 }

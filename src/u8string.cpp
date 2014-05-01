@@ -387,6 +387,18 @@ namespace zks
         return ret;
     }
 
+    u8string u8string::trim_spaces() const {
+        u8string ret{ *this };
+        size_t p = ret.find_first_not_of(" \t\r\n\f\v");
+        if (p != ret.npos){
+            ret = ret.substr(p);
+        }
+        p = ret.find_last_not_of(" \t\r\n\f\v");
+        if (p < ret.size()-1) {
+            ret = ret.substr(0, p + 1);
+        }
+        return ret;
+    }
     u8string u8string::trim_spaces(std::locale const& loc) const
     {
         u8string ret { *this };
