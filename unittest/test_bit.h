@@ -7,7 +7,8 @@
 
 extern zks::simlog logger;
 
-void test_bit() {
+void test_bit()
+{
     ZKS_ERROR(logger, "bithack", "next_power_of_2<4096>: %d", zks::NextPowerOf2<unsigned, 4096>::value);
     ZKS_ERROR(logger, "bithack", "next_power_of_2<0>: %d", zks::NextPowerOf2<unsigned, 0>::value);
     ZKS_ERROR(logger, "bithack", "next_power_of_2<23>: %d", zks::NextPowerOf2<unsigned, 23>::value);

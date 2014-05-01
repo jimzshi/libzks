@@ -9,27 +9,29 @@ using namespace std;
 
 extern zks::simlog logger;
 
-long long log_thread() {
-	zks::StopWatch sw;
-	sw.start("log_thread");
-	for (int i = 0; i < 100000; ++i) {
-		ZKS_ERROR(logger, "test_simlog", "i=%d", i);
-	}
-	sw.tick("100000 log entries");
-	ZKS_ERROR(logger, "test_simlog", "%s", sw.u8str().c_str());
-	return 0;
+long long log_thread()
+{
+    zks::StopWatch sw;
+    sw.start("log_thread");
+    for (int i = 0; i < 100000; ++i) {
+        ZKS_ERROR(logger, "test_simlog", "i=%d", i);
+    }
+    sw.tick("100000 log entries");
+    ZKS_ERROR(logger, "test_simlog", "%s", sw.u8str().c_str());
+    return 0;
 }
 
-int test_simlog() {
-	vector<future<long long>> fv(5);
-	for (int i = 0; i < 5; ++i) {
-		fv[i] = (std::async(std::launch::async, log_thread));
-	}
-	for (size_t i = 0; i < fv.size(); ++i) {
-		fv[i].get();
-	}
+int test_simlog()
+{
+    vector<future<long long>> fv(5);
+    for (int i = 0; i < 5; ++i) {
+        fv[i] = (std::async(std::launch::async, log_thread));
+    }
+    for (size_t i = 0; i < fv.size(); ++i) {
+        fv[i].get();
+    }
 
-	return 0;
+    return 0;
 }
 
 //int main() {

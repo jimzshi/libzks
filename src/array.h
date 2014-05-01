@@ -7,30 +7,36 @@
 #include <algorithm>
 #include <memory>
 
-namespace zks {
+namespace zks
+{
 
     template<typename T_>
-    struct Ref_array_traits_ {
+    struct Ref_array_traits_
+    {
         typedef T_* pointer;
 
         int size;
         int ref;
         pointer data;
 
-        Ref_array_traits_() {
+        Ref_array_traits_()
+        {
             ref = 1;
             size = 0;
             data = new T_[0];
         }
-        Ref_array_traits_(int sz) {
+        Ref_array_traits_(int sz)
+        {
             ref = 1;
             size = sz;
             data = new T_[sz]();
         }
-        ~Ref_array_traits_() {
+        ~Ref_array_traits_()
+        {
             delete[] data;
         }
-        Ref_array_traits_* detach() {
+        Ref_array_traits_* detach()
+        {
             if (ref == 1) {
                 return this;
             }
@@ -39,13 +45,14 @@ namespace zks {
             --ref;
             return p;
         }
-    }; //Ref_array_traits_
+    };
+    //Ref_array_traits_
 
     template<typename T_,
-        typename StorageT_ = std::conditional_t<std::is_pointer<T_>::value, std::shared_ptr<std::remove_pointer_t<T_>>, T_>,
-        typename Impl_ = Ref_array_traits_ < StorageT_ >
-    >
-    class LazyArray {
+            typename StorageT_ = std::conditional_t<std::is_pointer<T_>::value, std::shared_ptr<std::remove_pointer_t<T_>>, T_>,
+            typename Impl_ = Ref_array_traits_<StorageT_> >
+    class LazyArray
+    {
     public:
         typedef T_ Type;
         typedef StorageT_ StorageType;
@@ -56,16 +63,20 @@ namespace zks {
 
     public:
         LazyArray() :
-            rep(new impl_t) {
+                rep(new impl_t)
+        {
         }
         LazyArray(int sz) :
-            rep(new impl_t(sz)) {
+                rep(new impl_t(sz))
+        {
         }
-        LazyArray(const LazyArray& vec) {
+        LazyArray(const LazyArray& vec)
+        {
             vec.rep->ref++;
             rep = vec.rep;
         }
-        const LazyArray& operator=(const LazyArray& rh) {
+        const LazyArray& operator=(const LazyArray& rh)
+        {
             if (rh.rep == rep) {
                 return *this;
             }
@@ -76,45 +87,56 @@ namespace zks {
             rep = rh.rep;
             return *this;
         }
-        ~LazyArray() {
+        ~LazyArray()
+        {
             if (--rep->ref == 0) {
                 delete rep;
             }
         }
 
-        bool empty() const{
+        bool empty() const
+        {
             return rep->size == 0;
         }
-        int size() const {
+        int size() const
+        {
             return rep->size;
         }
-        int ref() const {
+        int ref() const
+        {
             return rep->ref;
         }
-        StorageType const& operator[](int sz) const {
+        StorageType const& operator[](int sz) const
+        {
             return *(rep->data + sz);
         }
-        StorageType const* begin() const {
+        StorageType const* begin() const
+        {
             return rep->data;
         }
-        StorageType const* end() const {
+        StorageType const* end() const
+        {
             return rep->data + rep->size;
         }
 
-        StorageType& at(int sz) {
+        StorageType& at(int sz)
+        {
             rep = rep->detach();
             return *(rep->data + sz);
         }
-        Type& last() {
+        Type& last()
+        {
             rep = rep->detach();
             return *(rep->data + rep->size - 1);
         }
-        Type* data() {
+        Type* data()
+        {
             rep = rep->detach();
             return rep->data;
         }
 
-        int insert(int pos, StorageType const& v) {
+        int insert(int pos, StorageType const& v)
+        {
             if (pos > rep->size || pos < 0) {
                 return -1;
             }
@@ -130,7 +152,8 @@ namespace zks {
             return pos;
         }
 
-        void push_back(StorageType const& v) {
+        void push_back(StorageType const& v)
+        {
             size_t sz = rep->size;
             impl_t* p = new impl_t(sz + 1);
             std::copy(rep->data, rep->data + sz, p->data);
@@ -141,7 +164,8 @@ namespace zks {
             rep = p;
             return;
         }
-        Type& append() {
+        Type& append()
+        {
             size_t sz = rep->size;
             impl_t* p = new impl_t(sz + 1);
             std::copy(rep->data, rep->data + sz, p->data);
@@ -151,8 +175,9 @@ namespace zks {
             rep = p;
             return rep->data[sz];
         }
-        int erase(int pos, int n = 1) {
-            if (pos < 0 || pos >(rep->size - 1)) {
+        int erase(int pos, int n = 1)
+        {
+            if (pos < 0 || pos > (rep->size - 1)) {
                 return -1;
             }
             if (n > (rep->size - pos)) {
@@ -168,10 +193,12 @@ namespace zks {
             rep = p;
             return pos;
         }
-        void clear() {
+        void clear()
+        {
             erase(0, rep->size);
         }
-        void reverse() {
+        void reverse()
+        {
             int s = rep->size;
             impl_t* p = new impl_t(s);
             for (int i = 0; i < s; ++i) {
@@ -182,7 +209,8 @@ namespace zks {
             }
             rep = p;
         }
-        void resize(int nsz) {
+        void resize(int nsz)
+        {
             if (nsz < 0) {
                 nsz = 0;
             }
@@ -197,16 +225,15 @@ namespace zks {
             rep = p;
             return;
         }
-    };// LazyArray
+    };
+    // LazyArray
 
-
-    template<typename T_, int ChunkSize_, int ChunkBytes_, typename Vec_ >
+    template<typename T_, int ChunkSize_, int ChunkBytes_, typename Vec_>
     class ChunkArray;
 
-    template<typename T_,
-        class = std::enable_if_t < (!std::is_pointer<T_>::value && !std::is_reference<T_>::value) >
-    >
-    struct Chunk_type_traits_ {
+    template<typename T_, class = std::enable_if_t<(!std::is_pointer<T_>::value && !std::is_reference<T_>::value)> >
+    struct Chunk_type_traits_
+    {
         typedef typename std::remove_cv<T_>::type Type_;
         typedef Type_* pointer;
         typedef Type_& reference;
@@ -215,7 +242,8 @@ namespace zks {
     };
 
     template<typename T_, int ChunkSize_, int ChunkBytes_, typename Vec_>
-    struct Chunk_size_traits_ {
+    struct Chunk_size_traits_
+    {
         typedef ChunkArray<T_, ChunkSize_, ChunkBytes_, Vec_> ChunkArray_;
         typedef typename Chunk_type_traits_<T_>::Type_ Ty_;
         static const int m_type_bytes_ = sizeof(Ty_);
@@ -225,19 +253,28 @@ namespace zks {
 
         int m_size_;
 
-        int size_() const { return m_size_; }
-        int chunk_index_(int idx) const { return idx / m_chunk_size_; }
-        int sub_index_(int idx) const { return idx % m_chunk_size_; }
-        int chunks_cover_(int size) const { return chunk_index_(size - 1) + 1; }
+        int size_() const
+        {
+            return m_size_;
+        }
+        int chunk_index_(int idx) const
+        {
+            return idx / m_chunk_size_;
+        }
+        int sub_index_(int idx) const
+        {
+            return idx % m_chunk_size_;
+        }
+        int chunks_cover_(int size) const
+        {
+            return chunk_index_(size - 1) + 1;
+        }
     };
 
     template<typename T_, int ChunkSize_ = 0, int ChunkBytes_ = 4096,
-        //typename Vec_ = LazyArray<typename Chunk_type_traits_<T_>::pointer>
-        typename Vec_ = LazyArray<LazyArray<T_> >
-    >
-    class ChunkArray :
-        private Chunk_size_traits_<T_, ChunkSize_, ChunkBytes_, Vec_>,
-        private Chunk_type_traits_ < T_ >
+    //typename Vec_ = LazyArray<typename Chunk_type_traits_<T_>::pointer>
+            typename Vec_ = LazyArray<LazyArray<T_> > >
+    class ChunkArray: private Chunk_size_traits_<T_, ChunkSize_, ChunkBytes_, Vec_>, private Chunk_type_traits_<T_>
     {
     public:
         typedef T_ Type;
@@ -248,19 +285,38 @@ namespace zks {
         Header m_header_;
 
     public:
-        ChunkArray() {}
-        ChunkArray(int n) { resize(n); }
+        ChunkArray()
+        {
+        }
+        ChunkArray(int n)
+        {
+            resize(n);
+        }
         ChunkArray(ChunkArray const& rhs) = default;
 
-        int size() const { return this->size_(); }
-        int chunk_size() const { return this->m_chunk_size_; }
-        int chunk_bytes() const { return this->m_chunk_bytes_; }
-        int chunks() const { return m_header_.size(); }
-        int capacity() const {
+        int size() const
+        {
+            return this->size_();
+        }
+        int chunk_size() const
+        {
+            return this->m_chunk_size_;
+        }
+        int chunk_bytes() const
+        {
+            return this->m_chunk_bytes_;
+        }
+        int chunks() const
+        {
+            return m_header_.size();
+        }
+        int capacity() const
+        {
             return chunks() * this->m_chunk_size_;
         }
 
-        void chunk_resize(int new_chunks) {
+        void chunk_resize(int new_chunks)
+        {
             int old_chunks = chunks();
             if (old_chunks == new_chunks) {
                 return;
@@ -277,7 +333,8 @@ namespace zks {
             }
             return;
         }
-        void reserve(int size) {
+        void reserve(int size)
+        {
             int new_chunks = this->chunks_cover_(size);
             int old_chunks = chunks();
             if (new_chunks > old_chunks) {
@@ -285,22 +342,26 @@ namespace zks {
             }
             return;
         }
-        void resize(int size) {
+        void resize(int size)
+        {
             reserve(size);
             this->m_size_ = size;
         }
-        void shrink_to_fit() {
+        void shrink_to_fit()
+        {
             int new_chunks = this->chunks_cover_(size());
             chunk_resize(new_chunks);
             return;
         }
-        void append_chunk() {
+        void append_chunk()
+        {
             ChunkStorageType& new_chunk = m_header_.append();
             //new_chunk.reset(new Type[this->m_chunk_size_], [](Type *p) { delete[] p; });
             new_chunk.resize(this->m_chunk_size_);
             return;
         }
-        int push_back(Type const& v) {
+        int push_back(Type const& v)
+        {
             int sz = size();
             if (sz >= capacity()) {
                 append_chunk();
@@ -309,31 +370,37 @@ namespace zks {
             ++this->m_size_;
             return sz;
         }
-        Type const& operator[](int idx) const {
+        Type const& operator[](int idx) const
+        {
             return m_header_[this->chunk_index_(idx)][this->sub_index_(idx)];
         }
-        Type& operator[](int idx) {
+        Type& operator[](int idx)
+        {
             return m_header_.at(this->chunk_index_(idx)).at(this->sub_index_(idx));
         }
-        Type const& at(int idx) const {
+        Type const& at(int idx) const
+        {
             if (idx >= size()) {
                 throw std::out_of_range("ChunkArray index can't be bigger than its size.");
             }
             return m_header_[this->chunk_index_(idx)][this->sub_index_(idx)];
         }
-        Type& at(int idx) {
+        Type& at(int idx)
+        {
             if (idx >= size()) {
                 throw std::out_of_range("ChunkArray index can't be bigger than its size.");
             }
             return m_header_.at(this->chunk_index_(idx)).at(this->sub_index_(idx));
         }
-        Type& last() {
+        Type& last()
+        {
             return operator[](size() - 1);
         }
-        Type* chunk(int c) {
+        Type* chunk(int c)
+        {
             return m_header_[c].data();
         }
-        
+
     };
 
 } //namespace zks;
