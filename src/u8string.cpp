@@ -181,6 +181,7 @@ namespace zks
             return *this;
         }
         size_type sz = traits_type::length(s);
+        cnt = std::min(cnt, size_type(-1) - pos);
         sz = std::min(sz, pos + cnt);
         cnt = std::min(sz - pos, cnt);
 
@@ -480,33 +481,33 @@ namespace zks
         size_type p { 0 }, ihead { 0 }, sz(size()), ssz(separator.size()), qsz(quote.size()), esz(escape.size());
         bool in_quote { false };
         while (p < sz) {
-            if (!in_quote && p + ssz <= sz && compare(p, ssz, separator) == 0) { //if it's a separator that not in quote;
+            if (!in_quote && p + ssz <= sz && equal_to(p, ssz, separator)) { //if it's a separator that not in quote;
                 if (raw_item) {
-                    ret.emplace_back(str_, ihead, p - ihead);
+                    ret.emplace_back(str_.data(), ihead, p - ihead);
                 }
                 else {
-                    ret.push_back(u8string { str_, ihead, p - ihead }.trim_spaces().unquote(quote, escape));
+                    ret.push_back(u8string{ str_.data(), ihead, p - ihead }.trim_spaces().unquote(quote, escape));
                 }
                 ihead = ++p;
                 continue;
             }
-            if (p + esz <= sz && compare(p, esz, escape) == 0) { //if it's a escape char,
-                if (p + esz + qsz < sz && compare(p + esz, qsz, quote) == 0) { //and followed by a non-ending-quote; 
+            if (p + esz <= sz && equal_to(p, esz, escape)) { //if it's a escape char,
+                if (p + esz + qsz < sz && equal_to(p + esz, qsz, quote)) { //and followed by a non-ending-quote; 
                     p += esz + qsz;
                     continue;
                 }
             }
-            if (p + qsz <= sz && compare(p, qsz, quote) == 0) {
+            if (p + qsz <= sz && equal_to(p, qsz, quote)) {
                 in_quote = !in_quote;
             }
             ++p;
         }
         if (ihead < sz) {
             if (raw_item) {
-                ret.emplace_back(str_, ihead);
+                ret.emplace_back(str_.data(), ihead, sz - ihead);
             }
             else {
-                ret.push_back(u8string { str_, ihead }.trim_spaces().unquote(quote, escape));
+                ret.push_back(u8string{ str_.data(), ihead, sz - ihead }.trim_spaces().unquote(quote, escape));
             }
         }
         return ret;

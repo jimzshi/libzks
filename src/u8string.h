@@ -1000,7 +1000,7 @@ namespace zks
         u8string substr(size_t pos = 0, size_t cnt = -1) const
         {
             //cnt = std::min(cnt, str_.size());
-            return u8string(str_.substr(pos, cnt));
+            return u8string(str_.data(), pos, cnt);
         }
 
         int compare(const u8string& str) const noexcept
@@ -1010,6 +1010,15 @@ namespace zks
         int compare(size_type pos1, size_type n1, const u8string& str) const
         {
             return u8string(*this, pos1, n1).compare(str);
+        }
+        bool equal_to(size_type pos1, size_type n1, const u8string& str) const
+        {
+            if (n1 != str.size()) {
+                return false;
+            }
+            for (size_type p = 0; p < n1; ++p)
+                if (str_[pos1 + p] != str.str_[p]) return false;
+            return true;
         }
         int compare(size_type pos1, size_type n1, const u8string& str, size_type pos2, size_type n2) const
         {
@@ -1071,7 +1080,7 @@ namespace zks
         u8string unquote(u8string const& q = "\"", u8string const& escape = "\"") const;
         std::vector<u8string> split(bool raw_item, u8string const& separator, u8string const& quote, u8string const& escape) const;
         // if raw_item = false, item will be trimmed spaces and unquoted before put it back;
-        std::vector<u8string> split(bool raw_item = false, u8string const& s = ",", u8string const& q = "\"") const
+        std::vector<u8string> split(bool raw_item = true, u8string const& s = ",", u8string const& q = "\"") const
         {
             return split(raw_item, s, q, q);
         }
