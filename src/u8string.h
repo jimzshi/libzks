@@ -880,10 +880,6 @@ namespace zks
         {
             return str_.c_str();
         }
-        explicit operator const char*() const
-        {
-            return str_.c_str();
-        }
         const std::string& str() const
         {
             return str_;

@@ -21,8 +21,8 @@ namespace zks
 
         char16_t to_char16(const char* u)
         {
-            if (u[0] & 0x80 && u[1]) {
-                if (u[0] & 0x20 && u[2]) {
+            if ((u[0] & 0x80) && u[1]) {
+                if ((u[0] & 0x20) && u[2]) {
                     return (char16_t) (((u[0] & 0x0f) << 12) | ((u[1] & 0x3f) << 6) | (u[2] & 0x3f));
                 }
                 else {

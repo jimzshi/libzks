@@ -113,7 +113,7 @@ namespace zks
         }
         Self& operator+=(u8string const& rhs)
         {
-            return operator+=((const char*) rhs);
+            return operator+=(rhs.c_str());
         }
 
         template<int N_, typename H_, typename W_>
