@@ -118,18 +118,35 @@ namespace zks
         {
             return rep->data + rep->size;
         }
+        StorageType* begin()
+        {
+            return rep->data;
+        }
+        StorageType* end()
+        {
+            return rep->data + rep->size;
+        }
 
         StorageType& at(int sz)
         {
             rep = rep->detach();
             return *(rep->data + sz);
         }
-        Type& last()
+        StorageType& last()
+        {
+            return back();
+        }
+        StorageType& front()
+        {
+            rep = rep->detach();
+            return *(rep->data);
+        }
+        StorageType& back()
         {
             rep = rep->detach();
             return *(rep->data + rep->size - 1);
         }
-        Type* data()
+        StorageType* data()
         {
             rep = rep->detach();
             return rep->data;
@@ -211,8 +228,8 @@ namespace zks
         }
         void resize(int nsz)
         {
-            if (nsz < 0) {
-                nsz = 0;
+            if (nsz < 0 || nsz == rep->size) {
+                return;
             }
             impl_t* p = new impl_t(nsz);
             int copy_size = ((nsz < rep->size) ? nsz : rep->size);

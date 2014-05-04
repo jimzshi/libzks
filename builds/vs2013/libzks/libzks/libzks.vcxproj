@@ -66,6 +66,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\bit_hack.cpp" />
     <ClCompile Include="..\..\..\..\src\hash.cpp" />
     <ClCompile Include="..\..\..\..\src\MurmurHash3.cpp" />
     <ClCompile Include="..\..\..\..\src\simconf.cpp" />
@@ -75,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\src\array.h" />
+    <ClInclude Include="..\..\..\..\src\BitVector.h" />
     <ClInclude Include="..\..\..\..\src\bit_hack.h" />
     <ClInclude Include="..\..\..\..\src\configure.h" />
     <ClInclude Include="..\..\..\..\src\hash.h" />

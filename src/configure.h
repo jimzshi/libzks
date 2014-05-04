@@ -25,4 +25,10 @@
 
 #define _ZKS_U8STRING_NOVALIDATION
 
+#if defined(_WIN64) || defined(__x86_64__) || defined(__aarch64__) || defined(_M_IA64) || defined(__IA64__)
+#define _ZKS64
+#else
+#define _ZKS32
+#endif
+
 #endif

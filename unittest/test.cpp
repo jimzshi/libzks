@@ -36,6 +36,7 @@ int main(int argc, char* argv[])
     //test_bit();
     //test_chunk_array();
     //test_code();
-    test_hashvector(argc, argv);
+    //test_hashvector(argc, argv);
+    test_bitvector();
     return 0;
 }
