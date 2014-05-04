@@ -3,85 +3,141 @@
 
 #include "bit_hack.h"
 #include "array.h"
+#include "u8string.h"
 
 #include <cinttypes>
 #include <limits>
 
-namespace zks {
+namespace zks
+{
 
 #ifdef _ZKS64
-    class BitVector {
+    class BitVector
+    {
         typedef uint64_t word_t;
     private:
-
 
         size_t size_;
         LazyArray<word_t> bv_;
 
-        inline size_t word_size_(size_t bitsize) {
+        inline size_t word_size_(size_t bitsize) const
+        {
             return (bitsize + 63) >> 6;
         }
-        inline void reset_tail_() {
-            int bits_left = 64-(size_&0x3f);
+        inline void reset_tail_()
+        {
+            int bits_left = 64 - (size_ & 0x3f);
             bv_.last() = (bv_.last() >> bits_left) << bits_left;
         }
 
     public:
-        BitVector() : size_(0), bv_() {}
-        BitVector(size_t sz, bool set_ = false) {
+        BitVector() :
+                size_(0), bv_()
+        {
+        }
+        BitVector(size_t sz, bool set_ = false)
+        {
             resize(sz);
             set_ ? set() : reset();
         }
-        void set() {
+        void set()
+        {
             for (auto& w : bv_) {
                 w = ~word_t(0);
             }
             reset_tail_();
         }
-        void set(size_t pos) {
-            if(pos<size_) {
-                bv_.at(pos >> 6) |= (1 << (63 - (pos&0x3f)));
+        void set(size_t pos)
+        {
+            if (pos < size_) {
+                bv_.at(pos >> 6) |= ((word_t)0x01 << (63 - (pos & 0x3f)));
             }
         }
-        void reset() {
+        void reset()
+        {
             for (auto& w : bv_) {
                 w = word_t(0);
             }
         }
-        void reset(size_t pos) {
-            if(pos<size_) {
-                bv_.at(pos>>6) &= ~(1<<(63-(pos&0x3f)));
+        void reset(size_t pos)
+        {
+            if (pos < size_) {
+                bv_.at(pos >> 6) &= ~((word_t)0x01 << (63 - (pos & 0x3f)));
             }
         }
-        void flip() {
+        void flip()
+        {
             for (auto& w : bv_) {
                 w = ~w;
             }
             reset_tail_();
         }
-        void flip(size_t pos) {
-            if(pos<size_) {
-                bv_.at(pos>>6) ^= (1 << (63 - (pos&0x3f)));
+        void flip(size_t pos)
+        {
+            if (pos < size_) {
+                bv_.at(pos >> 6) ^= ((word_t)0x01 << (63 - (pos & 0x3f)));
             }
         }
-        size_t popcnt() {
-            return popcnt(size_);
-        }
-       size_t popcnt(size_t size) {
-           size_t res(0), lword(word_size_(size) - 1);
-           for(size_t i=0; i<lword; ++i) {
-               res += zks::popcnt(bv_[i]);
-           }
-           res += zks::popcnt(bv_[lword], (size&0x3f));
-           return res;
-        }
 
-        void resize(size_t size) {
+        void resize(size_t size)
+        {
             bv_.resize(word_size_(size));
-            if(size<size_) {
+            if (size < size_) {
                 reset_tail_();
             }
             size_ = size;
+        }
+
+        size_t size() const {
+            return size_;
+        }
+
+        bool test(size_t pos) const {
+            return (pos < size_) && ((bv_[pos >> 6] >> (63 - (pos & 0x3f))) & (word_t)0x01);
+        }
+        bool operator[](size_t pos) const {
+            return test(pos);
+        }
+        size_t popcnt() const {
+            return popcnt(size_);
+        }
+        size_t popcnt(size_t size) const {
+            size_t res(0), lword(word_size_(size) - 1);
+            for (size_t i = 0; i<lword; ++i) {
+                res += zks::popcnt(bv_[i]);
+            }
+            res += zks::popcnt(bv_[lword], (size & 0x1f));
+            return res;
+        }
+
+        size_t first_bit1() const {
+            size_t wsize {word_size_(size_)};
+            size_t i = 0;
+            for (; i < wsize; ++i) {
+                if (bv_[i]) {
+                    return (i << 6) + zks::first_bit1(bv_[i]);
+                }
+            }
+            return size_t(-1);
+        }
+
+        size_t last_bit1() const {
+            size_t wi {word_size_(size_)};
+            for (; wi > 0; --wi) {
+                size_t w = wi -1;
+                if (bv_[w]) {
+                    return (w << 6) + zks::last_bit1(bv_[w]);
+                }
+            }
+            return size_t(-1);
+        }
+
+        u8string to_u8string() const {
+            u8string ret;
+            for(int i=0; i<bv_.size(); ++i) {
+                ret.append(50, "%16.16lX,", bv_[i]);
+            }
+            return ret;
         }
     };
 #else // not _ZKS64
@@ -165,9 +221,9 @@ namespace zks {
         }
 
         size_t first_bit1() const {
-            size_t pos{ 0 }, wsize{ word_size_(size_) };
+            size_t wsize {word_size_(size_)};
             size_t i = 0;
-            for (; i < wsize; ++i){
+            for (; i < wsize; ++i) {
                 if (bv_[i]) {
                     return (i << 5) + zks::first_bit1(bv_[i]);
                 }
@@ -176,10 +232,11 @@ namespace zks {
         }
 
         size_t last_bit1() const {
-            size_t wi{ word_size_(size_) - 1 };
-            for (; wi >= 0; --wi) {
-                if (bv_[wi]) {
-                    return (wi << 5) + zks::last_bit1(bv_[wi]);
+            size_t wi {word_size_(size_)};
+            for (; wi > 0; --wi) {
+                size_t w = wi - 1;
+                if (bv_[w]) {
+                    return (w << 5) + zks::last_bit1(bv_[w]);
                 }
             }
             return size_t(-1);

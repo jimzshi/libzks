@@ -25,20 +25,20 @@ void test_bit()
     return;
 }
 
+void log_bv(zks::BitVector const& bv) {
+    ZKS_ERROR(logger, "bitvector", "BitVec(%s), size(%d), popcnt(%d), first_bit1(%d), last_bit1(%d), ",
+            bv.to_u8string().c_str(), bv.size(), bv.popcnt(), bv.first_bit1(), bv.last_bit1());
+}
 void test_bitvector() {
     zks::BitVector bv(67);
     bv.set(33);
-    ZKS_ERROR(logger, "bitvector", "first_bit1: %d", bv.first_bit1());
+    log_bv(bv);
     bv.flip();
-    ZKS_ERROR(logger, "bitvector", "popcnt: %d", bv.popcnt());
+    log_bv(bv);
     bv.flip();
+    log_bv(bv);
     bv.set(17);
-    ZKS_ERROR(logger, "bitvector", "first_bit1: %d", bv.first_bit1());
-    ZKS_ERROR(logger, "bitvector", "last_bit1: %d", bv.last_bit1());
-    ZKS_ERROR(logger, "bitvector", "popcnt: %d", bv.popcnt());
-    ZKS_ERROR(logger, "bitvector", "test(%d): %d", 15, bv.test(15));
-    ZKS_ERROR(logger, "bitvector", "test(%d): %d", 17, bv.test(17));
-    ZKS_ERROR(logger, "bitvector", "test(%d): %d", 33, bv.test(33));
+    log_bv(bv);
     return;
 }
 
