@@ -169,7 +169,7 @@ namespace zks
         }
         void set(size_t pos) {
             if (pos<size_) {
-                bv_.at(pos >> 5) |= (1 << (31 - (pos & 0x1f)));
+                bv_.at(pos >> 5) |= ((word_t)0x01 << (31 - (pos & 0x1f)));
             }
         }
         void reset() {
@@ -179,7 +179,7 @@ namespace zks
         }
         void reset(size_t pos) {
             if (pos<size_) {
-                bv_.at(pos >> 5) &= ~(1 << (31 - (pos & 0x1f)));
+                bv_.at(pos >> 5) &= ~((word_t)0x01 << (31 - (pos & 0x1f)));
             }
         }
         void flip() {
@@ -190,7 +190,7 @@ namespace zks
         }
         void flip(size_t pos) {
             if (pos<size_) {
-                bv_.at(pos >> 5) ^= (1 << (31 - (pos & 0x1f)));
+                bv_.at(pos >> 5) ^= ((word_t)0x01 << (31 - (pos & 0x1f)));
             }
         }
 
@@ -202,8 +202,11 @@ namespace zks
             size_ = size;
         }
 
+        size_t size() const {
+            return size_;
+        }
         bool test(size_t pos) const {
-            return (pos < size_) && ((bv_[pos >> 5] >> (31 - (pos & 0x1f))) & 0x01);
+            return (pos < size_) && ((bv_[pos >> 5] >> (31 - (pos & 0x1f))) & (word_t)0x01);
         }
         bool operator[](size_t pos) const {
             return test(pos);
@@ -240,6 +243,14 @@ namespace zks
                 }
             }
             return size_t(-1);
+        }
+
+        u8string to_u8string() const {
+            u8string ret;
+            for (int i = 0; i<bv_.size(); ++i) {
+                ret.append(50, "%8.8X,", bv_[i]);
+            }
+            return ret;
         }
     };
 #endif // _ZKS64;
