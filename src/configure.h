@@ -1,6 +1,8 @@
 #ifndef ZKS_CONFIGURE_H_
 #define ZKS_CONFIGURE_H_
 
+#include <cinttypes>
+
 #if defined(_WIN32) || defined(_WIN64)
 #define ZKS_OS_WINDOWS_
 #elif defined(__gnu_linux__)
@@ -30,5 +32,7 @@
 #else
 #define _ZKS32
 #endif
+
+typedef int64_t size_i;
 
 #endif

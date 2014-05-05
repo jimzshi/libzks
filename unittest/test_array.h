@@ -9,7 +9,7 @@
 
 extern zks::simlog logger;
 
-template<typename T1_, int N1_, int N2_, typename T2_>
+template<typename T1_, size_t N1_, size_t N2_, typename T2_>
 void log_chunk_array(const char* name, zks::ChunkArray<T1_, N1_, N2_, T2_> const& ca)
 {
     ZKS_ERROR(logger, "array", "array(%s): size=%d|capacity=%d|chunks=%d|chunk_size=%d|chunk_bytes=%d", name, ca.size(), ca.capacity(), ca.chunks(),
@@ -18,7 +18,7 @@ void log_chunk_array(const char* name, zks::ChunkArray<T1_, N1_, N2_, T2_> const
 }
 void test_chunk_array()
 {
-    typedef zks::ChunkArray<int, 10> chunk_array_t;
+    typedef zks::ChunkArray<int> chunk_array_t;
     ZKS_ERROR(logger, "array", "sizeof(zks::ChunkArray<int, 10>): %d", sizeof(chunk_array_t));
     ZKS_ERROR(logger, "array", "sizeof(zks::LazyArray<int>): %d", sizeof(zks::LazyArray<int>));
 

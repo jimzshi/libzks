@@ -134,7 +134,7 @@ namespace zks
 
         u8string to_u8string() const {
             u8string ret;
-            for(int i=0; i<bv_.size(); ++i) {
+            for(size_t i=0; i<bv_.size(); ++i) {
                 ret.append(50, "%16.16lX,", bv_[i]);
             }
             return ret;
@@ -247,7 +247,7 @@ namespace zks
 
         u8string to_u8string() const {
             u8string ret;
-            for (int i = 0; i<bv_.size(); ++i) {
+            for (size_t i = 0; i<bv_.size(); ++i) {
                 ret.append(50, "%8.8X,", bv_[i]);
             }
             return ret;

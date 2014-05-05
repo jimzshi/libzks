@@ -7,7 +7,7 @@ namespace zks
         if (x == 0) {
             return size_t(-1);
         }
-        int n = 0;
+        size_t n = 0;
         if (x <= 0xffff) {
             n += 16; x <<= 16;
         }
@@ -29,7 +29,7 @@ namespace zks
         if (x == 0) {
             return size_t(-1);
         }
-        int n = 0;
+        size_t n = 0;
         if ((x & 0xffff) == 0) {
             n += 16; x >>= 16;
         }
@@ -53,7 +53,7 @@ namespace zks
         if (x == 0) {
             return size_t(-1);
         }
-        int n = 0;
+        size_t n = 0;
         if (x <= 0xffffffff) {
             n += 32;
             x <<= 32;
@@ -84,7 +84,7 @@ namespace zks
         if (x == 0) {
             return size_t(-1);
         }
-        int n { 0 };
+        size_t n { 0 };
         if ((x & 0xffffffff) == 0) {
             n += 32;
             x >>= 32;
