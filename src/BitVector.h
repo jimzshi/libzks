@@ -172,6 +172,12 @@ namespace zks
                 bv_.at(pos >> 5) |= ((word_t)0x01 << (31 - (pos & 0x1f)));
             }
         }
+        template<typename ForwardIterator>
+        void set(ForwardIterator beg, ForwardIterator end) {
+            for (; beg != end; ++beg) {
+                set(*beg);
+            }
+        }
         void reset() {
             for (auto& w : bv_) {
                 w = word_t(0);
@@ -180,6 +186,12 @@ namespace zks
         void reset(size_t pos) {
             if (pos<size_) {
                 bv_.at(pos >> 5) &= ~((word_t)0x01 << (31 - (pos & 0x1f)));
+            }
+        }
+        template<typename _ForwardIterator>
+        void reset(_ForwardIterator beg, _ForwardIterator end) {
+            for (; beg != end; ++beg) {
+                reset(*beg);
             }
         }
         void flip() {
@@ -243,6 +255,30 @@ namespace zks
                 }
             }
             return size_t(-1);
+        }
+
+        size_t next_bit1(size_t pos) const {
+            size_t wi = pos >> 5;
+            size_t ret = zks::first_bit1(bv_[wi], pos & 0x1f);
+            if (ret < 32) {
+                return (wi << 5) + ret;
+            }
+            for (++wi; wi < bv_.size(); ++wi) {
+                if ( 32 > (ret = zks::first_bit1(bv_[wi]))) {
+                    return (wi << 5) + ret;
+                }
+            }
+            return size_t(-1);
+        }
+
+        template<typename _Container>
+        void get_indices1(_Container& c) const {
+            c.resize(popcnt());
+            size_t p = first_bit1(), end = last_bit1();
+            for (size_t cnt = 0; p <= end; ++cnt, p = next_bit1(p)) {
+                c.at(cnt) = p;
+            }
+            return ;
         }
 
         u8string to_u8string() const {

@@ -6,6 +6,9 @@
 #include "array.h"
 #include "BitVector.h"
 
+#include <algorithm>
+#include <numeric>
+
 extern zks::simlog logger;
 
 void test_bit()
@@ -39,6 +42,27 @@ void test_bitvector() {
     log_bv(bv);
     bv.set(17);
     log_bv(bv);
+    
+    std::vector<size_t> indices(10);
+    size_t pos = { 10 };
+    std::generate(indices.begin(), indices.end(), [&](){return pos += 4; });
+    bv.set(indices.begin(), indices.end());
+    log_bv(bv);
+    for (size_t p{ bv.first_bit1() }, end{ bv.last_bit1() }; p <= end; p = bv.next_bit1(p)) {
+        ZKS_ERROR(logger, "bitvector", "traverse all set bits: %d", p);
+    }
+
+    ZKS_ERROR(logger, "bitvector", "%s", "another traverse method: ");
+    indices.clear();
+    bv.get_indices1(indices);
+    for (auto i : indices) {
+        logger << i << ", ";
+    }
+    logger << "\n";
+
+    bv.reset(indices.begin(), indices.end());
+    log_bv(bv);
+
     return;
 }
 

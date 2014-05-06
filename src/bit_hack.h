@@ -61,9 +61,11 @@ namespace zks
         x = ((x + (x >> 4) & 0xf0f0f0f) * 0x1010101) >> 24;
         return (int)x;
     }
-    /* position counting from MSB, return size_t(-1) if not found */
+    /* position counting [0, 32) from MSB, return size_t(-1) if not found. */
     size_t first_bit1(uint32_t x);
-    /* position counting from MSB, return size_t(-1) if not found */
+    inline size_t first_bit1(uint32_t x, size_t pos) {
+        return (pos >= 31) ? size_t(-1) : first_bit1((x << (pos + 1)) >> (pos + 1));
+    }
     size_t last_bit1(uint32_t x);
 
 #elif defined(_ZKS64)
@@ -86,9 +88,11 @@ namespace zks
         x = (x * 0x0101010101010101) >> 56;
         return (int) x;
     }
-    /* position counting from MSB, return size_t(-1) if not found */
+    /* position counting [0, 64) from MSB, return size_t(-1) if not found. */
     size_t first_bit1(uint64_t x);
-    /* position counting from MSB, return size_t(-1) if not found */
+    inline size_t first_bit1(uint64_t x, size_t pos) {
+        return (pos >= 63) ? size_t(-1) : first_bit1((x << (pos + 1)) >> (pos + 1));
+    }
     size_t last_bit1(uint64_t x);
 #endif
 
