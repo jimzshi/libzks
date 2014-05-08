@@ -53,6 +53,12 @@ namespace zks
                 bv_.at(pos >> 6) |= ((word_t)0x01 << (63 - (pos & 0x3f)));
             }
         }
+        template<typename ForwardIterator>
+        void set(ForwardIterator beg, ForwardIterator end) {
+            for (; beg != end; ++beg) {
+                set(*beg);
+            }
+        }
         void reset()
         {
             for (auto& w : bv_) {
@@ -63,6 +69,12 @@ namespace zks
         {
             if (pos < size_) {
                 bv_.at(pos >> 6) &= ~((word_t)0x01 << (63 - (pos & 0x3f)));
+            }
+        }
+        template<typename _ForwardIterator>
+        void reset(_ForwardIterator beg, _ForwardIterator end) {
+            for (; beg != end; ++beg) {
+                reset(*beg);
             }
         }
         void flip()
@@ -106,7 +118,7 @@ namespace zks
             for (size_t i = 0; i<lword; ++i) {
                 res += zks::popcnt(bv_[i]);
             }
-            res += zks::popcnt(bv_[lword], (size & 0x1f));
+            res += zks::popcnt(bv_[lword], (size & 0x3f));
             return res;
         }
 
@@ -130,6 +142,30 @@ namespace zks
                 }
             }
             return size_t(-1);
+        }
+
+        size_t next_bit1(size_t pos) const {
+            size_t wi = pos >> 6;
+            size_t ret = zks::first_bit1(bv_[wi], pos & 0x3f);
+            if (ret < 64) {
+                return (wi << 6) + ret;
+            }
+            for (++wi; wi < bv_.size(); ++wi) {
+                if ( 64 > (ret = zks::first_bit1(bv_[wi]))) {
+                    return (wi << 6) + ret;
+                }
+            }
+            return size_t(-1);
+        }
+
+        template<typename _Container>
+        void get_indices1(_Container& c) const {
+            c.resize(popcnt());
+            size_t p = first_bit1(), end = last_bit1();
+            for (size_t cnt = 0; p <= end; ++cnt, p = next_bit1(p)) {
+                c.at(cnt) = p;
+            }
+            return ;
         }
 
         u8string to_u8string() const {

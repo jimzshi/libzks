@@ -88,7 +88,7 @@ namespace zks {
     }
 
     template<typename ForwardIter_, typename RNG_ >
-    inline void sample(ForwardIter_ beg, ForwardIter_ end, RNG_& rng) {
+    inline void sample(ForwardIter_ beg, ForwardIter_ end, RNG_ rng) {
         for (; beg != end; ++beg) {
             *beg = rng();
         }
