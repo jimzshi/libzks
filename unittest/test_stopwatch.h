@@ -23,7 +23,7 @@ int test_stopwatch()
     cout << endl;
     sw.tick("pint lots of asteriks");
 
-    ZKS_ERROR(logger, "stopwatch", "%s", sw.u8str().c_str());
+    ZKS_INFO(logger, "stopwatch", "%s", sw.u8str().c_str());
 
     return 0;
 }

@@ -36,7 +36,7 @@ namespace zks
 
             std::va_list arg_list;
             va_start(arg_list, fmt);
-            msg_buff_ = msg_buff_.format(config.buff.msg_max_size, fmt, arg_list).quote();
+            msg_buff_.format(config.buff.msg_max_size, fmt, arg_list);
             va_end(arg_list);
             line_buff_.format(config.buff.line_buff_size, fmt_str_.c_str(), config.format.fieldset[Column::DATETIME] ? get_datetime_().c_str() : "",
                     config.format.fieldset[Column::EPOCHTIME] ?

@@ -283,8 +283,9 @@ namespace zks
 
         u8string to_u8string() const {
             u8string ret;
+            ret.reserve(bv_.size() << 5);
             for (size_t i = 0; i<bv_.size(); ++i) {
-                ret.append(50, "%8.8X,", bv_[i]);
+                ret.append(32, "%8.8X,", bv_[i]);
             }
             return ret;
         }

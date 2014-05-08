@@ -13,9 +13,9 @@ void test_hash()
         std::chrono::milliseconds dura(1000);
         std::this_thread::sleep_for(dura);
         zks::Hashcode_base_<32> hash1;
-        ZKS_ERROR(logger, "hash", "hash1(salt): %08X", hash1.h[0]);
+        ZKS_INFO(logger, "hash", "hash1(salt): %08X", hash1.h[0]);
         zks::Hashcode_base_<32> hash2(false);
-        ZKS_ERROR(logger, "hash", "hash2(no_salt): %08X", hash2.h[0]);
+        ZKS_INFO(logger, "hash", "hash2(no_salt): %08X", hash2.h[0]);
     }
     return;
 }
@@ -23,28 +23,28 @@ void test_hash()
 void test_hash1()
 {
     zks::HashCode32 h;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     h += 32;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     h += 11.23;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     h += "haha";
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     zks::u8string str(L"halo");
     h += str;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     zks::HashCode32 h2;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h2).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h2).c_str());
     h += h2;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
 
     zks::Hashcode_base_<32, zks::MurmurHash<32>, char> h3;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
     h3 += h;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
 
     zks::Hashcode_base_<32, zks::MurmurHash<32>, uint16_t> h4;
-    ZKS_ERROR(logger, "hash1", "hash_u8: %s", zks::to_u8string(h4).c_str());
+    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h4).c_str());
 }
 
 void test_hashvector(int argc, char* argv[])
@@ -72,27 +72,27 @@ void test_hashvector(int argc, char* argv[])
     for (; zks::getline(ifs, line); ++num) {
         items = line.split();
         if(items.size() != field_size) {
-            ZKS_ERROR(logger, "hashvector", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
+            ZKS_INFO(logger, "hashvector", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
         }
         //if(field_symbols.contains(items[field_num])) {
-        //    ZKS_ERROR(logger, "hashvector", "item `%s` appears more than once.", items[field_num].c_str());
+        //    ZKS_INFO(logger, "hashvector", "item `%s` appears more than once.", items[field_num].c_str());
         //}
         for (size_t i = 0; i < field_size; ++i) {
             field_symbols[i].push_back(items[i]);
         }
         
         if (!(num & 0xffff)) {
-            ZKS_ERROR(logger, "hashvector", "read in %d lines.", num);
+            ZKS_INFO(logger, "hashvector", "read in %d lines.", num);
         }
     }
 
-    ZKS_ERROR(logger, "hashvector", "read in %d lines in total", num);
+    ZKS_INFO(logger, "hashvector", "read in %d lines in total", num);
     for (size_t i = 0; i < field_size; ++i) {
-        ZKS_ERROR(logger, "hashvector", "field `%s` has %d symbols", field_names[i].c_str(), field_symbols[i].size());
+        ZKS_INFO(logger, "hashvector", "field `%s` has %d symbols", field_names[i].c_str(), field_symbols[i].size());
     }
     
     //for(size_t i=0; i<field_symbols.size(); ++i) {
-    //    ZKS_ERROR(logger, "hashvector", "index(%d): %s", i, field_symbols[i].c_str());
+    //    ZKS_INFO(logger, "hashvector", "index(%d): %s", i, field_symbols[i].c_str());
     //}
 
     //char c = std::getchar();

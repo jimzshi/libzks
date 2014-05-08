@@ -83,6 +83,7 @@
     <ClInclude Include="..\..\..\..\src\iterator.h" />
     <ClInclude Include="..\..\..\..\src\libzks.h" />
     <ClInclude Include="..\..\..\..\src\MurmurHash3.h" />
+    <ClInclude Include="..\..\..\..\src\random.h" />
     <ClInclude Include="..\..\..\..\src\simconf.h" />
     <ClInclude Include="..\..\..\..\src\simlog.h" />
     <ClInclude Include="..\..\..\..\src\stopwatch.h" />

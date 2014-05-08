@@ -14,10 +14,10 @@ long long log_thread()
     zks::StopWatch sw;
     sw.start("log_thread");
     for (int i = 0; i < 100000; ++i) {
-        ZKS_ERROR(logger, "test_simlog", "i=%d", i);
+        ZKS_INFO(logger, "test_simlog", "i=%d", i);
     }
     sw.tick("100000 log entries");
-    ZKS_ERROR(logger, "test_simlog", "%s", sw.u8str().c_str());
+    ZKS_INFO(logger, "test_simlog", "%s", sw.u8str().c_str());
     return 0;
 }
 

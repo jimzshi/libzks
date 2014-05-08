@@ -82,6 +82,7 @@
     <ClInclude Include="..\..\..\..\unittest\test_conf.h" />
     <ClInclude Include="..\..\..\..\unittest\test_hash.h" />
     <ClInclude Include="..\..\..\..\unittest\test_locale.h" />
+    <ClInclude Include="..\..\..\..\unittest\test_random.h" />
     <ClInclude Include="..\..\..\..\unittest\test_simlog.h" />
     <ClInclude Include="..\..\..\..\unittest\test_stopwatch.h" />
     <ClInclude Include="..\..\..\..\unittest\test_utility.h" />

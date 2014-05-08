@@ -37,6 +37,8 @@ int main(int argc, char* argv[])
     //test_chunk_array();
     //test_code();
     //test_hashvector(argc, argv);
-    test_bitvector();
+    //test_bitvector();
+    //test_bitvector_perf();
+    test_rand();
     return 0;
 }

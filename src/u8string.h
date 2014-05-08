@@ -1397,6 +1397,11 @@ struct hash<zks::u8string>
         return std::hash<std::string>()(s.str());
     }
 };
+
+inline std::string to_string(zks::u8string const& u8str) {
+    return u8str.str();
 }
+
+} /* namespace std */
 
 #endif /*_JZS_U8STRING_H*/

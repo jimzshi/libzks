@@ -6,3 +6,4 @@
 #include "test_hash.h"
 #include "test_bit.h"
 #include "test_array.h"
+#include "test_random.h"

@@ -12,6 +12,8 @@
 #include <memory>
 #include <numeric>
 #include <functional>
+#include <random>
+#include <ctime>
 
 namespace zks
 {
