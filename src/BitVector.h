@@ -40,6 +40,18 @@ namespace zks
             resize(sz);
             set_ ? set() : reset();
         }
+        BitVector(uint64_t v) : size_(64), bv_(1) {
+            bv_.at(0) = v;
+        }
+        BitVector(BitVector const& bv) = default;
+        ~BitVector() = default;
+
+        BitVector& operator=(BitVector const& rhs) {
+            size_ = rhs.size_;
+            bv_ = rhs.bv_;
+            return *this;
+        }
+
         void set()
         {
             for (auto& w : bv_) {
@@ -197,6 +209,18 @@ namespace zks
             resize(sz);
             set_ ? set() : reset();
         }
+        BitVector(uint32_t v) : size_(32), bv_(1) {
+            bv_.at(0) = v;
+        }
+        BitVector(BitVector const& bv) = default;
+        ~BitVector() = default;
+
+        BitVector& operator=(BitVector const& rhs) {
+            size_ = rhs.size_;
+            bv_ = rhs.bv_;
+            return *this;
+        }
+
         void set() {
             for (auto& w : bv_) {
                 w = ~word_t(0);

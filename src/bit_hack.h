@@ -67,7 +67,21 @@ namespace zks
         return (pos >= 31) ? size_t(-1) : first_bit1((x << (pos + 1)) >> (pos + 1));
     }
     size_t last_bit1(uint32_t x);
-
+    inline size_t last_bit1(uint32_t x, size_t pos) {
+        return (pos >= 31) ? size_t(-1) : last_bit1((x >> (31 - pos)) << (31 - pos));
+    }
+    inline size_t first_bit0(uint32_t x) {
+        return first_bit1(~x);
+    }
+    inline size_t first_bit0(uint32_t x, size_t pos) {
+        return first_bit1(~x, pos);
+    }
+    inline size_t last_bit0(uint32_t x) {
+        return last_bit1(~x);
+    }
+    inline size_t last_bit0(uint32_t x, size_t pos) {
+        return last_bit0(~x, pos);
+    }
 #elif defined(_ZKS64)
     inline int popcnt(uint64_t x)
     {
@@ -94,6 +108,21 @@ namespace zks
         return (pos >= 63) ? size_t(-1) : first_bit1((x << (pos + 1)) >> (pos + 1));
     }
     size_t last_bit1(uint64_t x);
+    inline size_t last_bit1(uint64_t x, size_t pos) {
+        return (pos >= 63) ? size_t(-1) : last_bit1((x >> (63 - pos)) << (63 - pos));
+    }
+    inline size_t first_bit0(uint64_t x) {
+        return first_bit1(~x);
+    }
+    inline size_t first_bit0(uint64_t x, size_t pos) {
+        return first_bit1(~x, pos);
+    }
+    inline size_t last_bit0(uint64_t x) {
+        return last_bit1(~x);
+    }
+    inline size_t last_bit0(uint64_t x, size_t pos) {
+        return last_bit0(~x, pos);
+    }
 #endif
 
 } // namespace zks;
