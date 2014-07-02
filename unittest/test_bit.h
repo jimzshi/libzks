@@ -35,7 +35,7 @@ void log_bv(zks::BitVector const& bv) {
 }
 
 void test_bitvector() {
-    zks::BitVector bv(67);
+    zks::BitVector bv(67, false);
     bv.set(33);
     log_bv(bv);
     bv.flip();
@@ -69,7 +69,7 @@ void test_bitvector() {
 }
 
 void test_bitvector_perf() {
-    zks::BitVector bv(60000000);
+    zks::BitVector bv(60000000, false);
     zks::StopWatch sw;
     sw.start();
 

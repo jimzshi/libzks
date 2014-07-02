@@ -40,7 +40,7 @@ namespace zks
             resize(sz);
             set_ ? set() : reset();
         }
-        BitVector(uint64_t v) : size_(64), bv_(1) {
+        explicit BitVector(uint64_t v) : size_(64), bv_(1) {
             bv_.at(0) = v;
         }
         BitVector(BitVector const& bv) = default;
@@ -209,7 +209,7 @@ namespace zks
             resize(sz);
             set_ ? set() : reset();
         }
-        BitVector(uint32_t v) : size_(32), bv_(1) {
+        explicit BitVector(uint32_t v) : size_(32), bv_(1) {
             bv_.at(0) = v;
         }
         BitVector(BitVector const& bv) = default;
