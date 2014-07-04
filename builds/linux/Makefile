@@ -60,8 +60,8 @@ $(TMP)/%.o : $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAG) -c $< -o $@
 	$(CXX) -MM -MT $@ -MF $(@:.o=.d) $<
 
-$(A_TARGET) : $(OBJ)
-	$(AR) rcs $@ $^
+$(A_TARGET) : $(OBJ) pre-build
+	$(AR) rcs $(A_TARGET) $(OBJ)
 	
 $(TMP_TEST)/%.o : $(TEST_DIR)/%.cpp
 	$(CXX) $(TEST_CXXFLAG) -c $< -o $@
@@ -70,7 +70,7 @@ $(TMP_TEST)/%.o : $(TEST_DIR)/%.cpp
 $(TEST_TARGET) : $(TEST_OBJ) $(A_TARGET)
 	$(CXX) $^ $(A_TARGET) -o $@ $(TEST_LD)
 
-post-build :
+post-build : $(A_TARGET)
 	cp $(HEADER) $(OUTPUT_INC)
 	cp $(A_TARGET) $(OUTPUT_LIB)
 	
