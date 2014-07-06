@@ -7,6 +7,7 @@
 
 extern zks::simlog logger;
 
+inline
 void test_hash()
 {
     for (size_t i = 0; i < 5; ++i) {
@@ -20,6 +21,7 @@ void test_hash()
     return;
 }
 
+inline
 void test_hash1()
 {
     zks::HashCode32 h;
@@ -47,6 +49,7 @@ void test_hash1()
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h4).c_str());
 }
 
+inline
 void test_hashvector(int argc, char* argv[])
 {
     if (argc < 5) {

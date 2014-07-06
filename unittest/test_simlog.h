@@ -9,6 +9,7 @@ using namespace std;
 
 extern zks::simlog logger;
 
+inline
 long long log_thread()
 {
     zks::StopWatch sw;
@@ -21,6 +22,7 @@ long long log_thread()
     return 0;
 }
 
+inline
 int test_simlog()
 {
     vector<future<long long>> fv(5);

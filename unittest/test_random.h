@@ -7,6 +7,7 @@
 
 extern zks::simlog logger;
 
+inline
 void test_rand()
 {
     zks::randomize();

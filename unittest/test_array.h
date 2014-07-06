@@ -10,12 +10,14 @@
 extern zks::simlog logger;
 
 template<typename T1_, size_t N1_, size_t N2_, typename T2_>
+inline
 void log_chunk_array(const char* name, zks::ChunkArray<T1_, N1_, N2_, T2_> const& ca)
 {
     ZKS_INFO(logger, "array", "array(%s): size=%d|capacity=%d|chunks=%d|chunk_size=%d|chunk_bytes=%d", name, ca.size(), ca.capacity(), ca.chunks(),
             ca.chunk_size(), ca.chunk_bytes());
     return;
 }
+inline
 void test_chunk_array()
 {
     typedef zks::ChunkArray<int> chunk_array_t;
@@ -45,7 +47,7 @@ void test_chunk_array()
     return;
 }
 
-void test_ca_push()
+inline void test_ca_push()
 {
 
 }
