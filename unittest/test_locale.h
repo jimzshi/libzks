@@ -13,6 +13,7 @@ using namespace zks;
 
 extern zks::simlog logger;
 
+inline
 void prepare_file()
 {
     // UTF-16le data (if host system is little-endian)
@@ -24,6 +25,7 @@ void prepare_file()
     fout.write(reinterpret_cast<char*>(utf16le), sizeof utf16le);
 }
 
+inline
 int test_locale(int argc, char* argv[])
 {
     //prepare_file();
@@ -80,6 +82,7 @@ int test_locale(int argc, char* argv[])
     return 0;
 }
 
+inline
 int test_assign()
 {
     string u8c { (char) 0xf0, (char) 0xa4, (char) 0xad, (char) 0xa2 };
@@ -93,6 +96,7 @@ int test_assign()
     return 0;
 }
 
+inline
 int test_access()
 {
 #ifdef _HAS_CHAR_T_SUPPORT
@@ -112,6 +116,7 @@ int test_access()
     return 0;
 }
 
+inline
 int test_insert()
 {
 #ifdef _HAS_CHAR_T_SUPPORT
@@ -124,6 +129,7 @@ int test_insert()
     return 0;
 }
 
+inline
 int test_format()
 {
 #ifdef _HAS_CHAR_T_SUPPORT
@@ -141,6 +147,7 @@ int test_format()
     return 0;
 }
 
+inline
 int unicode_output()
 {
 #ifdef _HAS_CHAR_T_SUPPORT
@@ -156,6 +163,7 @@ int unicode_output()
     return 0;
 }
 
+inline
 int test_append()
 {
 #ifdef _HAS_CHAR_T_SUPPORT
@@ -172,6 +180,7 @@ int test_append()
     return 0;
 }
 
+inline
 int test_split()
 {
     std::vector<u8string> cases { R"(Year,Make,Model,Description,Price)", R"(1997,Ford,E350,"ac, abs, moon",3000.00)",
@@ -186,6 +195,7 @@ air, moon roof, loaded",4799.00)" };
     }
     return 0;
 }
+inline
 int test_join()
 {
     std::vector<u8string> cases { R"(Year,Make,Model,Description,Price)", R"(1997,Ford,E350,"ac, abs, moon",3000.00)",
@@ -203,16 +213,23 @@ air, moon roof, loaded",4799.00)" };
     return 0;
 }
 
+inline
 int test_caseit()
 {
     std::clog << "current name: " << std::locale("").name() << "\n";
     u8string sv { L"äöåß" };
     std::clog << "sv: " << sv << "\n";
+#ifdef ZKS_OS_WINDOWS_
     std::clog << "to upper: " << sv.toupper(std::locale("de-DE")) << "\n";
     std::clog << "to lower: " << sv.tolower(std::locale("de-DE")) << "\n";
+#else
+    std::clog << "to upper: " << sv.toupper(std::locale("sv_SE.utf8")) << "\n";
+    std::clog << "to lower: " << sv.tolower(std::locale("sv_SE.utf8")) << "\n";
+#endif
     return 0;
 }
 
+inline
 int test_code()
 {
 #ifdef ZKS_OS_GNULINUX_

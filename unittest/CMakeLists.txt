@@ -1,12 +1,14 @@
+file(GLOB ZKS_TEST_SRC "test_*.cpp")
+
 include_directories (${LIBZKS_SOURCE_DIR}/src)
 link_directories (${LIBZKS_BINARY_DIR}/src)
 
-add_executable (test test.cpp)
-
 set( LD_LIBS ${LD_LIBS} zks)
-
-if(UNIX)
 set( LD_LIBS ${LD_LIBS} ${CMAKE_THREAD_LIBS_INIT} c++)
-endif(UNIX)
 
-target_link_libraries (test ${LD_LIBS})
+link_libraries (zks ${LD_LIBS})
+
+foreach(test_src ${ZKS_TEST_SRC})
+    GET_FILENAME_COMPONENT(test_bin ${test_src} NAME_WE)
+    add_executable (${test_bin} ${test_src} test.cpp)
+endforeach(test_src)

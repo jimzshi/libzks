@@ -1,4 +1,4 @@
-//#include "test_locale.h"
+#include "configure.h"
 #include "test.h"
 
 #include <iostream>
@@ -8,6 +8,7 @@ using namespace std;
 
 zks::simlog logger;
 
+#ifdef ZKS_OS_WINDOWS_
 int main(int argc, char* argv[])
 {
     if (argc < 3) {
@@ -42,3 +43,4 @@ int main(int argc, char* argv[])
     test_rand();
     return 0;
 }
+#endif

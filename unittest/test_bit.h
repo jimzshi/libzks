@@ -12,6 +12,7 @@
 
 extern zks::simlog logger;
 
+inline
 void test_bit()
 {
     ZKS_INFO(logger, "bithack", "next_power_of_2<4096>: %d", zks::NextPowerOf2<unsigned, 4096>::value);
@@ -29,11 +30,13 @@ void test_bit()
     return;
 }
 
+inline
 void log_bv(zks::BitVector const& bv) {
     ZKS_INFO(logger, "bitvector", "BitVec(%s), size(%d), popcnt(%d), first_bit1(%d), last_bit1(%d), ",
             bv.to_u8string().c_str(), bv.size(), bv.popcnt(), bv.first_bit1(), bv.last_bit1());
 }
 
+inline
 void test_bitvector() {
     zks::BitVector bv(67, false);
     bv.set(33);
@@ -68,12 +71,15 @@ void test_bitvector() {
     return;
 }
 
+inline
 void test_bitvector_perf() {
-    zks::BitVector bv(60000000, false);
     zks::StopWatch sw;
     sw.start();
 
+    zks::BitVector bv(60000000, false);
     std::vector<size_t> indices(30000000);
+    sw.tick("init.");
+
     zks::randomize();
     zks::sample(indices.begin(), indices.end(), zks::RangedRNGen<size_t>(0, 59999999));
     sw.tick("sample");

@@ -3,6 +3,7 @@
 
 extern zks::simlog logger;
 
+inline
 void test_permutations()
 {
     size_t cardinals[5] = { 1, 2, 3, 4, 5 };
@@ -33,6 +34,7 @@ void test_permutations()
     return;
 }
 
+inline
 void test_mac()
 {
     std::vector<zks::u8string> mac_addrs = zks::get_mac_address();

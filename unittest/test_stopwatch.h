@@ -8,6 +8,7 @@ using namespace std;
 
 extern zks::simlog logger;
 
+inline
 int test_stopwatch()
 {
     zks::StopWatch sw;
