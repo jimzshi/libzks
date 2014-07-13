@@ -175,7 +175,7 @@ namespace zks
     std::vector<zks::u8string> get_mac_address();
 
     u8string as_hex(uint8_t c);
-
+    u8string as_hex(uint8_t* p, size_t len);
 } // namespace zks;
 
 namespace std

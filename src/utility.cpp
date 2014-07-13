@@ -123,5 +123,13 @@ namespace zks
         ret += char(c < 10 ? '0' + c : 'A' + c - 10);
         return ret;
     }
+    u8string as_hex(uint8_t* p, size_t len) {
+        u8string ret;
+        for(size_t i=0; i<len; ++i, ++p) {
+            ret += as_hex(*p);
+            ret += ' ';
+        }
+        return ret;
+    }
 
 } // namespace zks;
