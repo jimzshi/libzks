@@ -12,7 +12,7 @@ namespace zks
         if (fixed) {
             return result_type(0x58132134);
         }
-        result_type h;
+		result_type h = 0;
         std::vector<zks::u8string> mac_addrs = get_mac_address();
         for (size_t i = 0; i < mac_addrs.size(); ++i) {
             MurmurHash3_x86_32((void*) mac_addrs[i].data(), mac_addrs[i].size(), h, (void*) &h);

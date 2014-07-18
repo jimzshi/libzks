@@ -12,7 +12,7 @@
 using namespace std;
 
 
-#ifdef ZKS_OS_GNULINUX_
+#ifndef ZKS_SINGLE_VS_SOLUTION_
 int main(int argc, char* argv[]) {
     if (argc < 3) {
         cerr << argv[0] << " log.ini log-file" << endl;
@@ -21,9 +21,10 @@ int main(int argc, char* argv[]) {
     logger.configure(argv[1]);
     logger.config.output.file_name = argv[2];
     logger.reset();
-
+#ifndef ZKS_OS_WINDOWS_
     test_dist();
     test_dist2();
+#endif
 
     test_foreach();
     test_foreach2();

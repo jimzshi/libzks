@@ -46,7 +46,7 @@ namespace zks
         ptr_t cardinals_;
         ptr_t indices_;
     public:
-        const size_t rank = R_;
+        const int rank = R_;
         Permutations(index_t const* v)
         {
             cardinals_ = new index_t[rank];

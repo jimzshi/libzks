@@ -20,7 +20,7 @@ namespace zks
     public:
         enum Level
         {
-            EMERG, FATAL, ALERT, CRIT, ERROR, WARN, NOTICE, INFO, DEBUG, TRACE, lsize = 10
+            EMERG, FATAL, ALERT, CRIT, ERR, WARN, NOTICE, INFO, DEBUG, TRACE, lsize = 10
         };
         static const std::array<u8string, Level::lsize> level_string;
 
@@ -238,7 +238,7 @@ namespace zks
 #define ZKS_INFO(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::INFO, fmt, __VA_ARGS__)
 #define ZKS_NOTICE(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::NOTICE, fmt, __VA_ARGS__)
 #define ZKS_WARN(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::WARN, fmt, __VA_ARGS__)
-#define ZKS_ERROR(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::ERROR, fmt, __VA_ARGS__)
+#define ZKS_ERROR(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::ERR, fmt, __VA_ARGS__)
 #define ZKS_CRIT(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::CRIT, fmt, __VA_ARGS__)
 #define ZKS_ALERT(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::ALERT, fmt, __VA_ARGS__)
 #define ZKS_FATAL(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::FATAL, fmt, __VA_ARGS__)

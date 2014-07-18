@@ -8,7 +8,7 @@ using namespace std;
 
 zks::simlog logger;
 
-#ifdef ZKS_OS_WINDOWS_
+#ifdef ZKS_SINGLE_VS_SOLUTION_
 int main(int argc, char* argv[])
 {
     if (argc < 3) {
@@ -40,7 +40,8 @@ int main(int argc, char* argv[])
     //test_hashvector(argc, argv);
     //test_bitvector();
     //test_bitvector_perf();
-    test_rand();
+    //test_rand();
+	test_foreach2();
     return 0;
 }
 #endif

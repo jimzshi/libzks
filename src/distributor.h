@@ -8,6 +8,8 @@
 #ifndef ZKS_DISTRIBUTOR_H_
 #define ZKS_DISTRIBUTOR_H_
 
+#include "configure.h"
+
 #include <vector>
 #include <thread>
 #include <future>
@@ -90,6 +92,8 @@ void for_each(TaskIter_ beg, TaskIter_ end, Worker_ worker, int threads = 2,
     return;
 }
 
+
+#ifndef ZKS_OS_WINDOWS_
 template<typename Task_>
 inline
 void distribute(void (worker)(const Task_&),
@@ -114,6 +118,7 @@ void distribute(ResType_ (worker)(const Task_&),
     }
     return;
 }
+#endif
 
 } /* namespace zks */
 

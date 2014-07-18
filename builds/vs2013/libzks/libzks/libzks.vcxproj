@@ -32,7 +32,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>CTP_Nov2013</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
@@ -45,7 +45,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>CTP_Nov2013</PlatformToolset>
+    <PlatformToolset>v140</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -120,7 +120,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\bit_hack.cpp" />
+    <ClCompile Include="..\..\..\..\src\distributor.cpp" />
     <ClCompile Include="..\..\..\..\src\hash.cpp" />
+    <ClCompile Include="..\..\..\..\src\jsoncpp.cpp" />
     <ClCompile Include="..\..\..\..\src\MurmurHash3.cpp" />
     <ClCompile Include="..\..\..\..\src\simconf.cpp" />
     <ClCompile Include="..\..\..\..\src\simlog.cpp" />
@@ -132,8 +134,11 @@
     <ClInclude Include="..\..\..\..\src\BitVector.h" />
     <ClInclude Include="..\..\..\..\src\bit_hack.h" />
     <ClInclude Include="..\..\..\..\src\configure.h" />
+    <ClInclude Include="..\..\..\..\src\distributor.h" />
     <ClInclude Include="..\..\..\..\src\hash.h" />
     <ClInclude Include="..\..\..\..\src\iterator.h" />
+    <ClInclude Include="..\..\..\..\src\json-forwards.h" />
+    <ClInclude Include="..\..\..\..\src\json.h" />
     <ClInclude Include="..\..\..\..\src\libzks.h" />
     <ClInclude Include="..\..\..\..\src\MurmurHash3.h" />
     <ClInclude Include="..\..\..\..\src\random.h" />
@@ -145,6 +150,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\src\simlog.ini" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\src\CMakeLists.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -7,3 +7,5 @@
 #include "test_bit.h"
 #include "test_array.h"
 #include "test_random.h"
+#include "test_distributor.h"
+

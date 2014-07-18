@@ -8,6 +8,7 @@
 #ifndef TEST_DISTRIBUTOR_H_
 #define TEST_DISTRIBUTOR_H_
 
+#include "configure.h"
 #include "distributor.h"
 #include "random.h"
 #include "simlog.h"
@@ -53,7 +54,7 @@ void test_foreach2() {
     return;
 }
 
-
+#ifndef ZKS_OS_WINDOWS_
 inline
 void test_dist() {
     const int count = 10;
@@ -74,5 +75,6 @@ void test_dist2() {
     }
     return;
 }
+#endif
 
 #endif /* TEST_DISTRIBUTOR_H_ */
