@@ -126,7 +126,7 @@ namespace zks
 
         changed_ = false;
         is_valid_ = true;
-        return index_.size();
+        return (int)index_.size();
 #else
         return 0;
 #endif
@@ -300,26 +300,31 @@ namespace zks
 
     u8string& u8string::format(size_type max, const char* fmt, ...)
     {
-        std::shared_ptr<char> buff { new char[max] };
+        std::unique_ptr<char> buff { new char[max] };
         va_list arg_list;
         va_start(arg_list, fmt);
         int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
         va_end(arg_list);
 
-        if (sz < 0 || (size_t) sz > max) {
-            sz = max;
+        if (sz < 0) {
+            return *this;
+        } else if((size_t) sz > max) {
+            sz = (int)max;
         }
-        assign(buff.get());
+        assign(buff.get(), sz);
         on_change_();
         return *this;
     }
 
     u8string& u8string::format(size_type max, const char* fmt, va_list arg_list)
     {
-        std::shared_ptr<char> buff { new char[max] };
+        std::unique_ptr<char> buff{ new char[max] };
         int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
-        if (sz < 0 || (size_t) sz > max) {
-            sz = max;
+        if (sz < 0) {
+            return *this;
+        }
+        else if ((size_t)sz > max) {
+            sz = (int)max;
         }
         assign(buff.get(), sz);
         on_change_();
@@ -328,14 +333,17 @@ namespace zks
 
     u8string& u8string::append(size_type max, const char* fmt, ...)
     {
-        std::shared_ptr<char> buff { new char[max] };
+        std::unique_ptr<char> buff{ new char[max] };
         va_list arg_list;
         va_start(arg_list, fmt);
         int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
         va_end(arg_list);
 
-        if (sz < 0 || (size_t) sz > max) {
-            sz = max;
+        if (sz < 0) {
+            return *this;
+        }
+        else if ((size_t)sz > max) {
+            sz = (int)max;
         }
         append(buff.get(), sz);
         on_change_();
@@ -344,10 +352,13 @@ namespace zks
 
     u8string& u8string::append(size_type max, const char* fmt, va_list arg_list)
     {
-        std::shared_ptr<char> buff { new char[max] };
+        std::unique_ptr<char> buff{ new char[max] };
         int sz = std::vsnprintf(buff.get(), max, fmt, arg_list);
-        if (sz < 0 || (size_t) sz > max) {
-            sz = max;
+        if (sz < 0) {
+            return *this;
+        }
+        else if ((size_t)sz > max) {
+            sz = (int)max;
         }
         append(buff.get());
         on_change_();
@@ -678,7 +689,7 @@ std::string zks::unicode::encode(const char* loc_name, zks::u8string const& u8st
 zks::u8string zks::unicode::decode(int cp, std::string const& str) {
     std::wstring wstr;
     wstr.resize(2 * str.size() + 1);
-    int ok = ::MultiByteToWideChar(cp, 0, str.data(), -1, &wstr[0], wstr.size());
+    int ok = ::MultiByteToWideChar(cp, 0, str.data(), -1, &wstr[0], (int)wstr.size());
     if (!ok) {
         return zks::u8string {""};
     }

@@ -33,7 +33,7 @@ namespace zks
         }
     };
 
-    template<int R_, typename T_ = size_t>
+    template<size_t R_, typename T_ = size_t>
     class Permutations
     {
     public:
@@ -46,7 +46,7 @@ namespace zks
         ptr_t cardinals_;
         ptr_t indices_;
     public:
-        const int rank = R_;
+        const size_t rank = R_;
         Permutations(index_t const* v)
         {
             cardinals_ = new index_t[rank];
@@ -54,7 +54,7 @@ namespace zks
             if (!valid_cardinals()) {
                 throw std::runtime_error("invalid cardinals.");
             }
-            size_ = std::accumulate(cardinals_, cardinals_ + rank, 1, [](index_t const& x, index_t const& y) {return x*y;});
+            size_ = std::accumulate(cardinals_, cardinals_ + rank, (index_t)1, [](index_t const& x, index_t const& y) {return x*y;});
             indices_ = new index_t[rank];
             std::fill_n(indices_, rank, 0);
         }

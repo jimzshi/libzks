@@ -16,7 +16,7 @@ inline
 void test_bit()
 {
     ZKS_INFO(logger, "bithack", "next_power_of_2<4096>: %d", zks::NextPowerOf2<unsigned, 4096>::value);
-    ZKS_INFO(logger, "bithack", "next_power_of_2<0>: %d", zks::NextPowerOf2<unsigned, 0>::value);
+    //ZKS_INFO(logger, "bithack", "next_power_of_2<0>: %d", zks::NextPowerOf2<unsigned, 0>::value);
     ZKS_INFO(logger, "bithack", "next_power_of_2<23>: %d", zks::NextPowerOf2<unsigned, 23>::value);
     ZKS_INFO(logger, "bithack", "next_power_of_2<13>: %d", zks::NextPowerOf2<int, 13>::value);
 
