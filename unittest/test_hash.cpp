@@ -22,9 +22,9 @@ int main(int argc, char* argv[]) {
     logger.config.output.file_name = argv[2];
     logger.reset();
 
-    test_hash();
+    //test_hash();
     test_hash128();
-    test_hash_code(false);
+    //test_hashcode(false);
     test_hashcode_128(false);
     test_hashvector(argc, argv);
 
