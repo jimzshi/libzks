@@ -233,17 +233,9 @@ namespace zks
         return logger.flush();
     }
 
-#if defined(ZKS_DISABLE_TRIVIAL_LOG) || defined(ZKS_DISABLE_LOG)
-#define ZKS_TRACE(logger, group, fmt, ...) 
-#define ZKS_DEBUG(logger, group, fmt, ...) 
-#define ZKS_INFO(logger, group, fmt, ...) 
-#else
 #define ZKS_TRACE(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::TRACE, fmt, __VA_ARGS__)
 #define ZKS_DEBUG(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::DEBUG, fmt, __VA_ARGS__)
 #define ZKS_INFO(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::INFO, fmt, __VA_ARGS__)
-#endif
-
-#ifndef ZKS_DISABLE_LOG
 #define ZKS_NOTICE(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::NOTICE, fmt, __VA_ARGS__)
 #define ZKS_WARN(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::WARN, fmt, __VA_ARGS__)
 #define ZKS_ERROR(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::ERR, fmt, __VA_ARGS__)
@@ -251,15 +243,7 @@ namespace zks
 #define ZKS_ALERT(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::ALERT, fmt, __VA_ARGS__)
 #define ZKS_FATAL(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::FATAL, fmt, __VA_ARGS__)
 #define ZKS_EMERG(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::EMERG, fmt, __VA_ARGS__)
-#else
-#define ZKS_NOTICE(logger, group, fmt, ...) 
-#define ZKS_WARN(logger, group, fmt, ...) 
-#define ZKS_ERROR(logger, group, fmt, ...) 
-#define ZKS_CRIT(logger, group, fmt, ...) 
-#define ZKS_ALERT(logger, group, fmt, ...) 
-#define ZKS_FATAL(logger, group, fmt, ...) 
-#define ZKS_EMERG(logger, group, fmt, ...)
-#endif
+
 }
 
 #endif
