@@ -10,8 +10,8 @@ extern zks::simlog logger;
 inline
 void test_hash()
 {
+    std::chrono::milliseconds dura(1000);
     for (size_t i = 0; i < 5; ++i) {
-        std::chrono::milliseconds dura(1000);
         std::this_thread::sleep_for(dura);
         zks::Hashcode_base_<32> hash1;
         ZKS_INFO(logger, "hash", "hash1(salt): %08X", hash1.h[0]);
@@ -22,9 +22,23 @@ void test_hash()
 }
 
 inline
-void test_hash1()
+void test_hash128()
 {
-    zks::HashCode32 h;
+    std::chrono::milliseconds dura(1000);
+    for (size_t i = 0; i < 5; ++i) {
+        std::this_thread::sleep_for(dura);
+        zks::Hashcode_base_<128> hash1;
+        ZKS_INFO(logger, "hash128", "hash1(salt): %s", zks::to_u8string(hash1).c_str());
+        zks::Hashcode_base_<128> hash2(false);
+        ZKS_INFO(logger, "hash128", "hash2(no_salt): %s", zks::to_u8string(hash2).c_str());
+    }
+    return;
+}
+
+inline
+void test_hashcode(bool salt = true)
+{
+    zks::HashCode32 h(salt);
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
     h += 32;
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
@@ -35,18 +49,46 @@ void test_hash1()
     zks::u8string str(L"halo");
     h += str;
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
-    zks::HashCode32 h2;
+    zks::HashCode32 h2(salt);
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h2).c_str());
     h += h2;
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
 
-    zks::Hashcode_base_<32, zks::MurmurHash<32>, char> h3;
+    zks::Hashcode_base_<32, zks::MurmurHash<32>, char> h3(salt);
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
     h3 += h;
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
 
-    zks::Hashcode_base_<32, zks::MurmurHash<32>, uint16_t> h4;
+    zks::Hashcode_base_<32, zks::MurmurHash<32>, uint16_t> h4(salt);
     ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h4).c_str());
+}
+
+inline
+void test_hashcode_128(bool salt=true)
+{
+    zks::HashCode128 h(salt);
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8: %s", zks::to_u8string(h).c_str());
+    h += 32;
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + 32: %s", zks::to_u8string(h).c_str());
+    h += 11.23;
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + 11.23: %s", zks::to_u8string(h).c_str());
+    h += "haha";
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + haha: %s", zks::to_u8string(h).c_str());
+    zks::u8string str(L"halo");
+    h += str;
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + u8string(halo): %s", zks::to_u8string(h).c_str());
+    zks::HashCode128 h2(salt);
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h2): %s", zks::to_u8string(h2).c_str());
+    h += h2;
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h+h2): %s", zks::to_u8string(h).c_str());
+
+    zks::Hashcode_base_<128, zks::MurmurHash<128>, char> h3(salt);
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h3<char>): %s", zks::to_u8string(h3).c_str());
+    h3 += h;
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8: %s", zks::to_u8string(h3).c_str());
+
+    zks::Hashcode_base_<128, zks::MurmurHash<128>, uint16_t> h4(salt);
+    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h4<uint16_t): %s", zks::to_u8string(h4).c_str());
 }
 
 inline

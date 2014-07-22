@@ -34,6 +34,8 @@ int main(int argc, char* argv[])
     //test_permutations();
     //test_mac();
     //test_hash1();
+    test_hash128();
+    test_hashcode_128(false);
     //test_bit();
     //test_chunk_array();
     //test_code();
@@ -41,7 +43,7 @@ int main(int argc, char* argv[])
     //test_bitvector();
     //test_bitvector_perf();
     //test_rand();
-	test_foreach2();
+    //test_foreach2();
     return 0;
 }
 #endif

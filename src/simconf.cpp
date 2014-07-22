@@ -26,7 +26,7 @@ namespace zks
                 if (res) {
                     *res = line.substr(1, line.size() - 2).tolower();
                 }
-                return res->size();
+                return (int)res->size();
             }
             else {
                 return -1;
@@ -219,7 +219,7 @@ namespace zks
             return ret;
         }
         (*res) = value.split(false, _sep_, _quote_, _escape_);
-        return res->size();
+        return (int)res->size();
     }
 
     int simconf::option_set(const u8string& sec, const u8string& opt, std::unordered_set<u8string>* res) const
@@ -236,7 +236,7 @@ namespace zks
         for (size_t i = 0; i < vec.size(); ++i) {
             res->insert(vec[i]);
         }
-        return res->size();
+        return (int)res->size();
     }
 
 }

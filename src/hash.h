@@ -32,12 +32,12 @@ namespace zks
     };
     template<> struct HashResType<128>
     {
-        typedef std::array<char, 16> result_type;
+        typedef std::array<uint32_t, 4> result_type;
         static const int BITS = 128;
     };
     template<> struct HashResType<256>
     {
-        typedef std::array<char, 32> result_type;
+        typedef std::array<uint32_t, 8> result_type;
         static const int BITS = 256;
     };
 
@@ -45,7 +45,7 @@ namespace zks
     struct HashFuncType
     {
         typedef typename HashResType<NBITS>::result_type result_type;
-        typedef result_type (*hasher_type)(const void *, int, result_type);
+        typedef result_type (*hasher_type)(const void *, size_t, result_type);
     };
 
     template<int NBITS>
@@ -54,15 +54,18 @@ namespace zks
         typedef typename HashFuncType<NBITS>::result_type result_type;
         typedef typename HashFuncType<NBITS>::hasher_type hasher_type;
         static const result_type SALT;
-        static result_type hash(const void* key, int n, result_type seed);
+        static result_type hash(const void* key, size_t n, result_type seed);
         static result_type salt(bool fixed = false);
-        result_type operator()(const void* key, int n, result_type seed)
+        result_type operator()(const void* key, size_t n, result_type seed)
         {
             return MurmurHash::hash(key, n, seed);
         }
     };
     template<> MurmurHash<32>::result_type MurmurHash<32>::salt(bool fixed);
-    template<> MurmurHash<32>::result_type MurmurHash<32>::hash(const void* key, int n, result_type seed);
+    template<> MurmurHash<32>::result_type MurmurHash<32>::hash(const void* key, size_t n, result_type seed);
+
+    template<> MurmurHash<128>::result_type MurmurHash<128>::salt(bool fixed);
+    template<> MurmurHash<128>::result_type MurmurHash<128>::hash(const void* key, size_t n, result_type seed);
 
     template<int NBITS_, typename HashTraits = MurmurHash<NBITS_>, typename WordType = uint32_t>
     struct Hashcode_base_
@@ -72,7 +75,7 @@ namespace zks
         typedef typename HashTraits::hasher_type hasher_type;
         typedef WordType word_t;
         typedef uint8_t byte_t;
-        static const int BITS = NBITS_,
+        static const size_t BITS = NBITS_,
                 WORD_BITS = sizeof(word_t) * 8,
                 BYTES = (NBITS_ + 7) / 8,
                 WORD_SIZE = (NBITS_ + sizeof(word_t) * 8 - 1) / (sizeof(word_t) * 8);
@@ -82,14 +85,10 @@ namespace zks
         hasher_type hasher = HashTraits::hash;
 
     public:
-        Hashcode_base_(bool salt = true)
+        Hashcode_base_(bool use_salt = true)
         {
-            if (salt) {
-                std::memcpy((void*) &h, (void*) &HashTraits::SALT, BYTES);
-            }
-            else {
-                std::memset((void*) &h, 0, BYTES);
-            }
+            result_type s = HashTraits::salt(!use_salt);
+            std::memcpy((void*)&h, (void*)&s, BYTES);
         }
         ~Hashcode_base_()
         {
@@ -146,6 +145,7 @@ namespace zks
     }
 
     typedef Hashcode_base_<32> HashCode32;
+    typedef Hashcode_base_<128> HashCode128;
 
     template<typename T, int NBITS = 32>
     struct MMHash_base_

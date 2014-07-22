@@ -5,7 +5,7 @@ project(LIBZKS)
 add_compile_options ($<$<CXX_COMPILER_ID:Clang>:-std=c++1y>)
 add_compile_options ($<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>)
 
-set( CMAKE_VERBOSE_MAKEFILE on )
+set( CMAKE_VERBOSE_MAKEFILE off )
 
 FIND_PACKAGE ( Threads REQUIRED )
 
