@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <unordered_set>
 #include <map>
 #include <utility>
 #include <memory>
@@ -205,6 +206,25 @@ namespace std
     {
         os << to_string(vec);
         return os;
+    }
+
+    template<typename Tp_>
+    std::string to_string(const std::unordered_set<Tp_>& s)
+    {
+        std::string ret;
+        ret += "[";
+        auto begin = s.cbegin();
+        auto end = s.cend();
+        for (auto iter = begin; iter != end; ++iter) {
+            if (iter == begin) {
+                ret += std::to_string(*iter);
+            }
+            else {
+                ret += "," + std::to_string(*iter);
+            }
+        }
+        ret += "]";
+        return ret;
     }
 
     template<typename Tp_>
