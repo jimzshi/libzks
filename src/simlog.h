@@ -20,7 +20,7 @@ namespace zks
     public:
         enum Level
         {
-            EMERG, FATAL, ALERT, CRIT, ERR, WARN, NOTICE, INFO, DEBUG, TRACE, lsize = 10
+            EMERG, FATAL, ALERT, CRIT, ERR, WARN, NOTICE, INFO, DBG, TRACE, lsize = 10
         };
         static const std::array<u8string, Level::lsize> level_string;
 
@@ -239,7 +239,7 @@ namespace zks
 #define ZKS_INFO(logger, group, fmt, ...) 
 #else
 #define ZKS_TRACE(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::TRACE, fmt, __VA_ARGS__)
-#define ZKS_DEBUG(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::DEBUG, fmt, __VA_ARGS__)
+#define ZKS_DEBUG(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::DBG, fmt, __VA_ARGS__)
 #define ZKS_INFO(logger, group, fmt, ...) logger.write(__FILE__, __func__, __LINE__, group, zks::simlog::Level::INFO, fmt, __VA_ARGS__)
 #endif
 
