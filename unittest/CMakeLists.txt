@@ -6,7 +6,7 @@ link_directories (${LIBZKS_BINARY_DIR}/src)
 set( LD_LIBS ${LD_LIBS} zks)
 set( LD_LIBS ${LD_LIBS} ${CMAKE_THREAD_LIBS_INIT})
 
-set( LD_LIBS ${LD_LIBS} $<$<CXX_COMPILER_ID:Clang>:c++>)
+#set( LD_LIBS ${LD_LIBS} $<$<CXX_COMPILER_ID:Clang>:c++>)
 
 link_libraries (zks ${LD_LIBS})
 
