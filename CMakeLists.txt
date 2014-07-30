@@ -5,7 +5,7 @@ project(libzks)
 if(NOT CMAKE_BUILD_TYPE)
     set( CMAKE_BUILD_TYPE Release )
 endif(NOT CMAKE_BUILD_TYPE)
-set( CONFIG ${CMAKE_BUILD_TYPE})
+string( TOLOWER ${CMAKE_BUILD_TYPE} CONFIG )
 set( CMAKE_DEBUG_POSTFIX "_d" )
 
 
