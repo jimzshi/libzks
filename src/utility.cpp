@@ -110,6 +110,92 @@ namespace zks
         close(nSD);
         return ret;
     }
+#elif defined (ZKS_OS_MACOSX_)
+
+#include <stdio.h>
+
+#include <CoreFoundation/CoreFoundation.h>
+
+#include <IOKit/IOKitLib.h>
+#include <IOKit/network/IOEthernetInterface.h>
+#include <IOKit/network/IONetworkInterface.h>
+#include <IOKit/network/IOEthernetController.h>
+
+static kern_return_t FindEthernetInterfaces(io_iterator_t *matchingServices);
+
+static kern_return_t FindEthernetInterfaces(io_iterator_t *matchingServices)
+{
+    kern_return_t           kernResult;
+    CFMutableDictionaryRef	matchingDict;
+    CFMutableDictionaryRef	propertyMatchDict;
+
+    matchingDict = IOServiceMatching(kIOEthernetInterfaceClass);
+
+    if (NULL == matchingDict) {
+        printf("IOServiceMatching returned a NULL dictionary.\n");
+    }
+    else {
+        propertyMatchDict = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+            &kCFTypeDictionaryKeyCallBacks,
+            &kCFTypeDictionaryValueCallBacks);
+
+        if (NULL == propertyMatchDict) {
+            printf("CFDictionaryCreateMutable returned a NULL dictionary.\n");
+        }
+        else {
+            CFDictionarySetValue(propertyMatchDict, CFSTR(kIOPrimaryInterface), kCFBooleanTrue);
+
+            CFDictionarySetValue(matchingDict, CFSTR(kIOPropertyMatchKey), propertyMatchDict);
+            CFRelease(propertyMatchDict);
+        }
+    }
+
+    kernResult = IOServiceGetMatchingServices(kIOMasterPortDefault, matchingDict, matchingServices);
+    if (KERN_SUCCESS != kernResult) {
+        printf("IOServiceGetMatchingServices returned 0x%08x\n", kernResult);
+    }
+
+    return kernResult;
+}
+
+std::vector<zks::u8string> get_mac_address()
+{
+    io_iterator_t intfIterator
+    io_object_t intfService;
+    io_object_t controllerService;
+    kern_return_t kernResult = KERN_FAILURE;
+
+    std::vector<zks::u8string> ret;
+    kernResult = FindEthernetInterfaces(&intfIterator);
+    if (KERN_SUCCESS != kernResult) {
+        return ret;
+    }
+
+    while ((intfService = IOIteratorNext(intfIterator)))
+    {
+        CFTypeRef MACAddressAsCFData;
+
+        kernResult = IORegistryEntryGetParentEntry(intfService, kIOServicePlane, &controllerService);
+        if (KERN_SUCCESS == kernResult) {
+            MACAddressAsCFData = IORegistryEntryCreateCFProperty(controllerService,
+                CFSTR(kIOMACAddress),
+                kCFAllocatorDefault,
+                0);
+            if (MACAddressAsCFData) {
+                UInt8 MACAddress[kIOEthernetAddressSize];
+                bzero(MACAddress, kIOEthernetAddressSize);
+                CFDataGetBytes(MACAddressAsCFData, CFRangeMake(0, kIOEthernetAddressSize), MACAddress);
+                ret.push_back(as_hex(MACAddress, 6));
+                CFRelease(MACAddressAsCFData);
+            }
+            (void)IOObjectRelease(controllerService);
+        }
+        (void)IOObjectRelease(intfService);
+    }
+    (void)IOObjectRelease(intfIterator);
+
+    return ret;
+}
 
 #endif // OS;
 
