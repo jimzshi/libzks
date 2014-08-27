@@ -29,7 +29,7 @@ namespace zks
         };
 #ifdef ZKS_OS_WINDOWS_
         typedef std::codecvt_byname<wchar_t, char, std::mbstate_t> Mbwc_codecvt;
-#elif defined(ZKS_OS_GNULINUX_)
+#else
         typedef deletable_facet<std::codecvt_byname<wchar_t, char, std::mbstate_t>> Mbwc_codecvt;
 #endif
         typedef std::wstring_convert<Mbwc_codecvt> Mbwc_cvt;

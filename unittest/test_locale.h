@@ -242,7 +242,6 @@ int test_code()
     ZKS_INFO(logger, "test", "decode from latin1: %s", u8str.c_str());
     std::string gb18030str = zks::unicode::encode("zh_CN.gb18030", u8str);
     ZKS_INFO(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
-    return 0;
 #elif defined(ZKS_OS_WINDOWS_)
     std::locale loc = std::locale("");
     ZKS_INFO(logger, "test", "user's loc: %s", loc.name().c_str());
@@ -253,6 +252,6 @@ int test_code()
     ZKS_INFO(logger, "test", "decode from latin1: %s", u8str.c_str());
     std::string gb18030str = zks::unicode::encode(54936, u8str);
     ZKS_INFO(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
-    return 0;
 #endif
+    return 0;
 }

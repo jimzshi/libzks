@@ -7,7 +7,7 @@
 #define ZKS_OS_WINDOWS_
 #elif defined(__gnu_linux__)
 #define ZKS_OS_GNULINUX_
-#elif defined(__APPLE__ && __MACH__)
+#elif defined(__APPLE__) && defined(__MACH__)
 #define ZKS_OS_MACOSX_
 #else
 #define OS_UNKNOWN

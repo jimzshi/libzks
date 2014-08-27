@@ -160,7 +160,7 @@ static kern_return_t FindEthernetInterfaces(io_iterator_t *matchingServices)
 
 std::vector<zks::u8string> get_mac_address()
 {
-    io_iterator_t intfIterator
+    io_iterator_t intfIterator;
     io_object_t intfService;
     io_object_t controllerService;
     kern_return_t kernResult = KERN_FAILURE;
@@ -184,7 +184,7 @@ std::vector<zks::u8string> get_mac_address()
             if (MACAddressAsCFData) {
                 UInt8 MACAddress[kIOEthernetAddressSize];
                 bzero(MACAddress, kIOEthernetAddressSize);
-                CFDataGetBytes(MACAddressAsCFData, CFRangeMake(0, kIOEthernetAddressSize), MACAddress);
+                CFDataGetBytes((CFDataRef)MACAddressAsCFData, CFRangeMake(0, kIOEthernetAddressSize), MACAddress);
                 ret.push_back(as_hex(MACAddress, 6));
                 CFRelease(MACAddressAsCFData);
             }
