@@ -95,6 +95,9 @@
     <ClInclude Include="..\..\..\..\src\json-forwards.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\src\hash_table.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\src\simlog.ini">

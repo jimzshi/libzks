@@ -75,6 +75,11 @@ namespace zks
             vec.rep->ref++;
             rep = vec.rep;
         }
+        LazyArray(LazyArray&& rh)
+        {
+            rep = rh.rep;
+            rh.rep = nullptr;
+        }
         const LazyArray& operator=(const LazyArray& rh)
         {
             if (rh.rep == rep) {
@@ -87,9 +92,18 @@ namespace zks
             rep = rh.rep;
             return *this;
         }
+        const LazyArray& operator=(LazyArray&& rh)
+        {
+            if (rep && (--rep->ref == 0)) {
+                delete rep;
+            }
+            rep = rh.rep;
+            rh.rep = nullptr;
+            return *this;
+        }
         ~LazyArray()
         {
-            if (--rep->ref == 0) {
+            if (rep && (--rep->ref == 0) ) {
                 delete rep;
             }
         }
@@ -110,11 +124,11 @@ namespace zks
         {
             return *(rep->data + sz);
         }
-        StorageType const* begin() const
+        StorageType const* cbegin() const
         {
             return rep->data;
         }
-        StorageType const* end() const
+        StorageType const* cend() const
         {
             return rep->data + rep->size;
         }
@@ -264,7 +278,7 @@ namespace zks
         typedef ChunkArray<T_, ChunkSize_, ChunkBytes_, Vec_> ChunkArray_;
         typedef typename Chunk_type_traits_<T_>::Type_ Ty_;
         static const size_t m_type_bytes_ = sizeof(Ty_);
-        static const bool m_using_block_ = (ChunkSize_ == 0);
+        static const bool m_using_block_ = (ChunkSize_ == 0);  // using cache line length (ChunkBytes) as a block;
         static const size_t m_chunk_bytes_ = m_using_block_ ? zks::NextPowerOf2<size_t, ChunkBytes_>::value : (m_type_bytes_ * ChunkSize_);
         static const size_t m_chunk_size_ = m_using_block_ ? (m_chunk_bytes_ / m_type_bytes_) : ChunkSize_;
 
@@ -284,7 +298,7 @@ namespace zks
         }
         size_t chunks_cover_(size_t size) const
         {
-            return chunk_index_(size - 1) + 1;
+            return size ? chunk_index_(size - 1) + 1 : 1;
         }
     };
 
@@ -302,14 +316,224 @@ namespace zks
         Header m_header_;
 
     public:
+        class iterator {
+        public:
+            typedef std::random_access_iterator_tag iterator_category;
+            typedef T_ value_type;
+            typedef std::ptrdiff_t difference_type;
+            typedef T_& reference;
+            typedef T_* pointer;
+            typedef iterator Self_;
+
+        private:
+            size_t i_;
+            ChunkArray* ca_;
+
+        public:
+            iterator() : i_(0), ca_(nullptr) {}
+            iterator(iterator const& iter) : i_(iter.i_), ca_(iter.ca_) {}
+            iterator(size_t i, ChunkArray* ca) : i_(i), ca_(ca) {}
+            ~iterator() = default;
+
+            size_t i() const { return i_; }
+            reference operator*() { return ca_->at(i_); }
+            pointer operator->() { return get(); }
+            pointer get() { return &ca_->at(i_); }
+            
+            Self_& operator++() {
+                ++i_;
+                return *this;
+            }
+            Self_& operator++(int) {
+                iterator ret(*this);
+                ++i_;
+                return ret;
+            }
+            Self_& operator+=(const difference_type& n) {
+                i_ += n;
+                return *this;
+            }
+
+            Self_ operator+(const difference_type& n) const {
+                Self_ ret(*this);
+                return ret += n;
+            }
+
+            Self_& operator--() {
+                --i_;
+                return *this;
+            }
+            Self_& operator--(int) {
+                iterator ret(*this);
+                --i_;
+                return ret;
+            }
+            Self_& operator-=(const difference_type& n) {
+                i_ -= n;
+                return *this;
+            }
+
+            Self_ operator-(const difference_type& n) const {
+                Self_ ret(*this);
+                return ret -= n;
+            }
+
+            int compare(Self_ const& rhs) const
+            {
+                if (ca_ != rhs.ca_) {
+                    throw std::invalid_argument("iterator of different array.");
+                }
+                if (i_ < rhs.i_) {
+                    return -1;
+                }
+                else if (i_ > rhs.i_) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+
+            bool operator<(Self_ const& rhs) const {
+                return this->compare(rhs) < 0;
+            }
+            bool operator>(Self_ const& rhs) const {
+                return this->compare(rhs) > 0;
+            }
+            bool operator==(Self_ const& rhs) const {
+                return this->compare(rhs) == 0;
+            }
+            bool operator<=(Self_ const& rhs) const {
+                return this->compare(rhs) <= 0;
+            }
+            bool operator>=(Self_ const& rhs) const {
+                return this->compare(rhs) >= 0;
+            }
+            bool operator!=(Self_ const& rhs) const {
+                return this->compare(rhs) != 0;
+            }
+
+        }; //class iterator;
+
+        class const_iterator {
+        public:
+            typedef std::random_access_iterator_tag iterator_category;
+            typedef const T_ value_type;
+            typedef std::ptrdiff_t difference_type;
+            typedef const T_& reference;
+            typedef const T_* pointer;
+            typedef const_iterator Self_;
+
+        private:
+            size_t i_;
+            ChunkArray const* ca_;
+
+        public:
+            const_iterator() : i_(0), ca_(nullptr) {}
+            const_iterator(const_iterator const& iter) : i_(iter.i_), ca_(iter.ca_) {}
+            const_iterator(size_t i, ChunkArray* ca) : i_(i), ca_(ca) {}
+            ~const_iterator() = default;
+
+            size_t i() const { return i_; }
+            reference operator*() { return ca_->at(i_); }
+            pointer operator->() { return get(); }
+            pointer get() { return &ca_->at(i_); }
+
+            Self_& operator++() {
+                ++i_;
+                return *this;
+            }
+            Self_& operator++(int) {
+                iterator ret(*this);
+                ++i_;
+                return ret;
+            }
+            Self_& operator+=(const difference_type& n) {
+                i_ += n;
+                return *this;
+            }
+
+            Self_ operator+(const difference_type& n) const {
+                Self_ ret(*this);
+                return ret += n;
+            }
+
+            Self_& operator--() {
+                --i_;
+                return *this;
+            }
+            Self_& operator--(int) {
+                iterator ret(*this);
+                --i_;
+                return ret;
+            }
+            Self_& operator-=(const difference_type& n) {
+                i_ -= n;
+                return *this;
+            }
+
+            Self_ operator-(const difference_type& n) const {
+                Self_ ret(*this);
+                return ret -= n;
+            }
+
+            int compare(Self_ const& rhs) const
+            {
+                if (ca_ != rhs.ca_) {
+                    throw std::invalid_argument("iterator of different array.");
+                }
+                if (i_ < rhs.i_) {
+                    return -1;
+                }
+                else if (i_ > rhs.i_) {
+                    return 1;
+                }
+                else {
+                    return 0;
+                }
+            }
+
+            bool operator<(Self_ const& rhs) const {
+                return this->compare(rhs) < 0;
+            }
+            bool operator>(Self_ const& rhs) const {
+                return this->compare(rhs) > 0;
+            }
+            bool operator==(Self_ const& rhs) const {
+                return this->compare(rhs) == 0;
+            }
+            bool operator<=(Self_ const& rhs) const {
+                return this->compare(rhs) <= 0;
+            }
+            bool operator>=(Self_ const& rhs) const {
+                return this->compare(rhs) >= 0;
+            }
+            bool operator!=(Self_ const& rhs) const {
+                return this->compare(rhs) != 0;
+            }
+
+        }; //class iterator;
+
+    public:
         ChunkArray()
         {
+            resize(0);
         }
         ChunkArray(size_t n)
         {
             resize(n);
         }
         ChunkArray(ChunkArray const& rhs) = default;
+        ChunkArray(ChunkArray&& rhs) = default;
+        ChunkArray& operator=(const ChunkArray& rhs) = default;
+        ~ChunkArray() = default;
+
+        iterator begin() { return iterator(0, this); }
+        iterator end() { return iterator(size(), this); }
+        const_iterator begin() const { return const_iterator(0, this); }
+        const_iterator end() const { return const_iterator(size(), this); }
+        const_iterator cbegin() const { return const_iterator(0, this); }
+        const_iterator cend() const { return const_iterator(size(), this); }
 
         size_t size() const
         {
@@ -418,6 +642,7 @@ namespace zks
             return m_header_[c].data();
         }
 
+        
     };
 
 } //namespace zks;

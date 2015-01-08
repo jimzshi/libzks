@@ -1,5 +1,8 @@
 #include "libzks.h"
+
 #include "hash.h"
+#include "hash_table.h"
+
 #include <chrono>
 #include <thread>
 #include <iostream>
@@ -143,4 +146,59 @@ void test_hashvector(int argc, char* argv[])
     //char c = std::getchar();
 
     return ;
+}
+
+inline
+void test_hash_table(int argc, char* argv[])
+{
+    if (argc < 5) {
+        return;
+    }
+    std::ifstream ifs(argv[3]);
+    int field_num = std::atoi(argv[4]);
+    if (field_num < 0) {
+        return;
+    }
+
+    zks::u8string line;
+    zks::getline(ifs, line);
+    std::vector<zks::u8string> field_names = line.trim_spaces().split(true, "\t");
+    size_t field_size = field_names.size();
+    if (field_size < size_t(field_num)) {
+        return;
+    }
+
+    std::vector<zks::u8string> items;
+    std::vector<zks::Hash_table_<zks::u8string>> field_symbols{ field_size };
+    size_t num = 0;
+    for (; zks::getline(ifs, line); ++num) {
+        items = line.split(true, "\t");
+        if (items.size() > field_size) {
+            ZKS_INFO(logger, "hashvector", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
+            continue;
+        }
+        //if(field_symbols.contains(items[field_num])) {
+        //    ZKS_INFO(logger, "hashvector", "item `%s` appears more than once.", items[field_num].c_str());
+        //}
+        for (size_t i = 0; i < items.size(); ++i) {
+            field_symbols[i].insert(items[i]);
+        }
+
+        if (!(num & 0xffff)) {
+            ZKS_INFO(logger, "hashvector", "read in %d lines.", num);
+        }
+    }
+
+    ZKS_INFO(logger, "hashvector", "read in %d lines in total", num);
+    for (size_t i = 0; i < field_size; ++i) {
+        ZKS_INFO(logger, "hashvector", "field `%s` has %d symbols", field_names[i].c_str(), field_symbols[i].size());
+    }
+
+    //for(size_t i=0; i<field_symbols.size(); ++i) {
+    //    ZKS_INFO(logger, "hashvector", "index(%d): %s", i, field_symbols[i].c_str());
+    //}
+
+    //char c = std::getchar();
+
+    return;
 }

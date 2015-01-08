@@ -34,12 +34,13 @@ int main(int argc, char* argv[])
     //test_permutations();
     //test_mac();
     //test_hash1();
-    test_hash128();
-    test_hashcode_128(false);
+    //test_hash128();
+    //test_hashcode_128(false);
     //test_bit();
     //test_chunk_array();
     //test_code();
     //test_hashvector(argc, argv);
+    test_hash_table(argc, argv);
     //test_bitvector();
     //test_bitvector_perf();
     //test_rand();

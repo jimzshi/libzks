@@ -177,6 +177,9 @@ namespace zks
 
     u8string as_hex(uint8_t c);
     u8string as_hex(uint8_t* p, size_t len);
+
+    bool is_prime(size_t n);
+    size_t next_prime(size_t n);
 } // namespace zks;
 
 namespace std

@@ -4,6 +4,7 @@
 #include "utility.h"
 #include "MurmurHash3.h"
 #include "u8string.h"
+#include "array.h"
 
 #include <cstdint>
 #include <cstring>
@@ -64,6 +65,9 @@ namespace zks
     template<> MurmurHash<32>::result_type MurmurHash<32>::salt(bool fixed);
     template<> MurmurHash<32>::result_type MurmurHash<32>::hash(const void* key, size_t n, result_type seed);
 
+    template<> MurmurHash<64>::result_type MurmurHash<64>::salt(bool fixed);
+    template<> MurmurHash<64>::result_type MurmurHash<64>::hash(const void* key, size_t n, result_type seed);
+
     template<> MurmurHash<128>::result_type MurmurHash<128>::salt(bool fixed);
     template<> MurmurHash<128>::result_type MurmurHash<128>::hash(const void* key, size_t n, result_type seed);
 
@@ -90,9 +94,24 @@ namespace zks
             result_type s = HashTraits::salt(!use_salt);
             std::memcpy((void*)&h, (void*)&s, BYTES);
         }
+        Hashcode_base_(const Hashcode_base_& rh) {
+            for (size_t i = 0; i < WORD_SIZE; ++i) {
+                h[i] = rh.h[i];
+            }
+        }
         ~Hashcode_base_()
         {
         }
+
+        const Hashcode_base_& operator=(Hashcode_base_ const& rh) {
+            if (h != rh.h) {
+                for (size_t i = 0; i < WORD_SIZE; ++i) {
+                    h[i] = rh.h[i];
+                }
+            }
+            return *this;
+        }
+
 
         template<typename ArgT_>
         Self& operator+=(ArgT_ const& rhs)
@@ -147,13 +166,13 @@ namespace zks
     typedef Hashcode_base_<32> HashCode32;
     typedef Hashcode_base_<128> HashCode128;
 
-    template<typename T, int NBITS = 32>
+    template<typename T, int NBITS = 32, bool USE_SALT = false, typename WORD_TYPE = uint32_t>
     struct MMHash_base_
     {
-        typedef Hashcode_base_<NBITS> hashcode_t;
+        typedef Hashcode_base_<NBITS, MurmurHash<NBITS>, WORD_TYPE> hashcode_t;
         size_t operator()(T const& v) const
         {
-            hashcode_t hc { false };
+            hashcode_t hc{ USE_SALT };
             hc += v;
             return hc.h[0];
         }
@@ -162,95 +181,6 @@ namespace zks
     template<typename T>
     using mmhash32 = MMHash_base_<T, 32>;
 
-    template<typename T_,
-            typename ContainerT_,
-            typename Hash_ = mmhash32<T_>,
-            typename Equal_ = std::equal_to<T_>,
-            typename HT_ = std::unordered_map<T_, size_t, Hash_, Equal_> >
-    class Hash_container_
-    {
-    public:
-        typedef T_ Type;
-        typedef ContainerT_ container_t;
-        typedef HT_ hashtable_t;
-        static const size_t npos = size_t(-1);
-
-    private:
-        container_t m_container_;
-        hashtable_t m_hashtable_;
-
-    public:
-        Hash_container_()
-        {
-        }
-        ~Hash_container_()
-        {
-        }
-
-        size_t end() const {
-            return npos;
-        }
-        size_t find(Type const& v) const
-        {
-            auto iter = m_hashtable_.find(v);
-            if (iter != m_hashtable_.end()) {
-                return iter->second;
-            }
-            return npos;
-        }
-        bool contains(Type const& v) const
-        {
-            return m_hashtable_.find(v) != m_hashtable_.end();
-        }
-        Type const& operator[](size_t index) const {
-            return m_container_[index];
-        }
-
-        size_t push_back(Type const& v)
-        {
-            auto idx = find(v);
-            if (idx != npos) {
-                return idx;
-            }
-            m_container_.push_back(v);
-            idx = m_container_.size() - 1;
-            m_hashtable_[v] = idx;
-            return idx;
-        }
-        void erase(Type const& v)
-        {
-            if (!contains(v)) {
-                return;
-            }
-            m_hashtable_.erase(v);
-            return;
-        }
-        size_t size() const
-        {
-            return m_container_.size();
-        }
-        void reserve(size_t sz)
-        {
-            m_container_.reserve(sz);
-        }
-        void shrink_to_fit()
-        {
-            m_container_.shrink_to_fit();
-        }
-        void clear_container() {
-            m_container_.clear();
-        }
-        void clear_hash() {
-            m_hashtable_.clear();
-        }
-        void clear() {
-            clear_hash();
-            clear_container();
-        }
-    };
-
-    template<typename T>
-    using HashVector = Hash_container_<T, std::vector<T>>;
 }
 
 #endif

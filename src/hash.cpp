@@ -30,6 +30,42 @@ namespace zks
         return h;
     }
 
+    //64bits
+    template<> MurmurHash<64>::result_type MurmurHash<64>::salt(bool fixed)
+    {
+        if (fixed) {
+            return result_type(0x5813213482463167);
+        }
+        result_type h = 0;
+        uint32_t* p = (uint32_t*)&h;
+        std::vector<zks::u8string> mac_addrs = get_mac_address();
+        for (size_t i = 0; i < mac_addrs.size(); ++i) {
+            MurmurHash3_x86_32((void*)mac_addrs[i].data(), (int)mac_addrs[i].size(), *p, (void*)p);
+        }
+        std::time_t now = std::time(nullptr);
+        char* nowstr = std::ctime(&now);
+        MurmurHash3_x86_32((void*)nowstr, (int)std::strlen(nowstr), p[0], (void*)&p[1]);
+        return h;
+    }
+    template<> const MurmurHash<64>::result_type MurmurHash<64>::SALT = MurmurHash<32>::salt();
+    template<> MurmurHash<64>::result_type MurmurHash<64>::hash(const void* key, size_t n, result_type seed)
+    {
+        result_type h = 0;
+        uint32_t* p = (uint32_t*)&h;
+        uint32_t* s = (uint32_t*)&seed;
+        if (n < 2) {
+            MurmurHash3_x86_32(key, (int)n, *s++, (void*)p++);
+            MurmurHash3_x86_32(key, (int)n, *s, (void*)p);
+        }
+        else {
+            uint8_t* d = (uint8_t*)key;
+            size_t m = n / 2;
+            MurmurHash3_x86_32(d, (int)m, *s++, (void*)p++);
+            MurmurHash3_x86_32(d + m, (int)(n-m), *s, (void*)p);
+        }
+        return h;
+    }
+
     //128bit;
     template<> MurmurHash<128>::result_type MurmurHash<128>::salt(bool fixed)
     {

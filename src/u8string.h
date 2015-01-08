@@ -128,7 +128,8 @@ namespace zks
         Self_ operator++(int)
         {
             Self_ ret(*this);
-            return ++ret;
+            this->operator++();
+            return ret;
         }
 
         Self_& operator+=(const difference_type& n)

@@ -136,6 +136,7 @@
     <ClInclude Include="..\..\..\..\src\configure.h" />
     <ClInclude Include="..\..\..\..\src\distributor.h" />
     <ClInclude Include="..\..\..\..\src\hash.h" />
+    <ClInclude Include="..\..\..\..\src\hash_table.h" />
     <ClInclude Include="..\..\..\..\src\iterator.h" />
     <ClInclude Include="..\..\..\..\src\json-forwards.h" />
     <ClInclude Include="..\..\..\..\src\json.h" />
