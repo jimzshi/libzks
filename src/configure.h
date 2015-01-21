@@ -17,9 +17,9 @@
 #define _HAS_WIN32_CSTRING
 #endif
 
-#if defined(ZKS_OS_WINDOWS_)
-#define _HAS_CHAR_T_SUPPORT
-#endif
+//#if defined(ZKS_OS_WINDOWS_)
+//#define _HAS_CHAR_T_SUPPORT
+//#endif
 
 #if defined(ZKS_OS_WINDOWS_) || defined(__clang__)
 #define _HAS_CODECVT
