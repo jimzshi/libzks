@@ -7,6 +7,7 @@
 #include <thread>
 #include <iostream>
 #include <vector>
+#include <cassert>
 
 extern zks::simlog logger;
 
@@ -108,24 +109,28 @@ void test_hashvector(int argc, char* argv[])
 
     zks::u8string line;
     zks::getline(ifs, line);
-    std::vector<zks::u8string> field_names = line.trim_spaces().split();
+    std::vector<zks::u8string> field_names = line.trim_spaces().split(true, "\t");
     size_t field_size = field_names.size();
-    if(field_size <= size_t(field_num)) {
+    if(field_size < size_t(field_num)) {
         return;
     }
 
     std::vector<zks::u8string> items;
     std::vector<zks::HashVector<zks::u8string>> field_symbols{ field_size };
     size_t num=0;
+
+    zks::StopWatch sw;
+    sw.start("start");
     for (; zks::getline(ifs, line); ++num) {
-        items = line.split();
-        if(items.size() != field_size) {
+        items = line.split(true, "\t");
+        if(items.size() > field_size) {
             ZKS_INFO(logger, "hashvector", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
+            continue;
         }
         //if(field_symbols.contains(items[field_num])) {
         //    ZKS_INFO(logger, "hashvector", "item `%s` appears more than once.", items[field_num].c_str());
         //}
-        for (size_t i = 0; i < field_size; ++i) {
+        for (size_t i = 0; i < items.size(); ++i) {
             field_symbols[i].push_back(items[i]);
         }
         
@@ -133,17 +138,33 @@ void test_hashvector(int argc, char* argv[])
             ZKS_INFO(logger, "hashvector", "read in %d lines.", num);
         }
     }
-
+    sw.tick("push_back");
     ZKS_INFO(logger, "hashvector", "read in %d lines in total", num);
     for (size_t i = 0; i < field_size; ++i) {
         ZKS_INFO(logger, "hashvector", "field `%s` has %d symbols", field_names[i].c_str(), field_symbols[i].size());
     }
-    
-    //for(size_t i=0; i<field_symbols.size(); ++i) {
-    //    ZKS_INFO(logger, "hashvector", "index(%d): %s", i, field_symbols[i].c_str());
-    //}
+    ifs.clear();
+    ifs.seekg(0);
+    zks::getline(ifs, line);
 
-    //char c = std::getchar();
+    sw.tick("print");
+    for (; zks::getline(ifs, line); ++num) {
+        items = line.split(true, "\t");
+        if (items.size() > field_size) {
+            ZKS_INFO(logger, "hash_table", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
+            continue;
+        }
+        for (size_t i = 0; i < items.size(); ++i) {
+            assert(field_symbols[i].find(items[i]) != size_t(-1));
+        }
+
+        if (!(num & 0xffff)) {
+            ZKS_INFO(logger, "hashvector", "read in %d lines.", num);
+        }
+    }
+    sw.tick("find");
+
+    ZKS_INFO(logger, "hashvector", "stopwatch: %s", sw.u8str().c_str());
 
     return ;
 }
@@ -171,15 +192,14 @@ void test_hash_table(int argc, char* argv[])
     std::vector<zks::u8string> items;
     std::vector<zks::Hash_table_<zks::u8string>> field_symbols{ field_size };
     size_t num = 0;
+    zks::StopWatch sw;
+    sw.start("start");
     for (; zks::getline(ifs, line); ++num) {
         items = line.split(true, "\t");
         if (items.size() > field_size) {
-            ZKS_INFO(logger, "hashvector", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
+            ZKS_INFO(logger, "hash_table", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
             continue;
         }
-        //if(field_symbols.contains(items[field_num])) {
-        //    ZKS_INFO(logger, "hashvector", "item `%s` appears more than once.", items[field_num].c_str());
-        //}
         for (size_t i = 0; i < items.size(); ++i) {
             field_symbols[i].insert(items[i]);
         }
@@ -188,17 +208,34 @@ void test_hash_table(int argc, char* argv[])
             ZKS_INFO(logger, "hashvector", "read in %d lines.", num);
         }
     }
+    sw.tick("insert()");
 
-    ZKS_INFO(logger, "hashvector", "read in %d lines in total", num);
+    ZKS_INFO(logger, "hash_table", "read in %d lines in total", num);
     for (size_t i = 0; i < field_size; ++i) {
-        ZKS_INFO(logger, "hashvector", "field `%s` has %d symbols", field_names[i].c_str(), field_symbols[i].size());
+        ZKS_INFO(logger, "hash_table", "field `%s` has %d symbols", field_names[i].c_str(), field_symbols[i].size());
     }
+    ifs.clear();
+    ifs.seekg(0);
+    zks::getline(ifs, line);
 
-    //for(size_t i=0; i<field_symbols.size(); ++i) {
-    //    ZKS_INFO(logger, "hashvector", "index(%d): %s", i, field_symbols[i].c_str());
-    //}
+    sw.tick("print");
+    for (; zks::getline(ifs, line); ++num) {
+        items = line.split(true, "\t");
+        if (items.size() > field_size) {
+            ZKS_INFO(logger, "hash_table", "line(%d) : `%s` failed. \nread in %d items, need %d.", num, line.c_str(), items.size(), field_size);
+            continue;
+        }
+        for (size_t i = 0; i < items.size(); ++i) {
+            assert(field_symbols[i].find(items[i]) != field_symbols[i].end());
+        }
 
-    //char c = std::getchar();
+        if (!(num & 0xffff)) {
+            ZKS_INFO(logger, "hashvector", "read in %d lines.", num);
+        }
+    }
+    sw.tick("find");
+
+    ZKS_INFO(logger, "hash_table", "stopwatch: %s", sw.u8str().c_str());
 
     return;
 }

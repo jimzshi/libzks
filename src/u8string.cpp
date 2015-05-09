@@ -502,13 +502,13 @@ namespace zks
                 ihead = ++p;
                 continue;
             }
-            if (p + esz <= sz && equal_to(p, esz, escape)) { //if it's a escape char,
+            if (esz && p + esz <= sz && equal_to(p, esz, escape)) { //if it's a escape char,
                 if (p + esz + qsz < sz && equal_to(p + esz, qsz, quote)) { //and followed by a non-ending-quote; 
                     p += esz + qsz;
                     continue;
                 }
             }
-            if (p + qsz <= sz && equal_to(p, qsz, quote)) {
+            if (qsz && p + qsz <= sz && equal_to(p, qsz, quote)) {
                 in_quote = !in_quote;
             }
             ++p;

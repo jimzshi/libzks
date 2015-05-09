@@ -50,20 +50,10 @@ namespace zks
     template<> const MurmurHash<64>::result_type MurmurHash<64>::SALT = MurmurHash<32>::salt();
     template<> MurmurHash<64>::result_type MurmurHash<64>::hash(const void* key, size_t n, result_type seed)
     {
-        result_type h = 0;
-        uint32_t* p = (uint32_t*)&h;
+        uint64_t res[2];
         uint32_t* s = (uint32_t*)&seed;
-        if (n < 2) {
-            MurmurHash3_x86_32(key, (int)n, *s++, (void*)p++);
-            MurmurHash3_x86_32(key, (int)n, *s, (void*)p);
-        }
-        else {
-            uint8_t* d = (uint8_t*)key;
-            size_t m = n / 2;
-            MurmurHash3_x86_32(d, (int)m, *s++, (void*)p++);
-            MurmurHash3_x86_32(d + m, (int)(n-m), *s, (void*)p);
-        }
-        return h;
+        MurmurHash3_x64_128(key, (int)n, *s, (void*)res);
+        return res[0];
     }
 
     //128bit;

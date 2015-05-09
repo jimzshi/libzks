@@ -16,13 +16,13 @@ namespace zks {
         size_t table_size_;
         float r_;
     public:
-        Default_rehash_strategy_() : table_size_(7), r_(1.0) {}
+        Default_rehash_strategy_() : table_size_(3), r_(1.0) {}
         void next() { 
-            r_ *= 1.3;
+            r_ *= (float)1.3;
             table_size_ = next_prime(2 * table_size_ + 1);
         }
         void prev() { 
-            r_ /= 1.3; 
+            r_ /= (float)1.3; 
             table_size_ = next_prime(table_size_ / 2 | 1);
         }
         size_t table_size() const { return table_size_; }
@@ -53,7 +53,9 @@ namespace zks {
         using obj_array_t = zks::ChunkArray < value_type >;
         using node_array_t = zks::ChunkArray < node_type >;
         using obj2node_t = zks::ChunkArray < size_t > ;
-
+        //using obj_array_t = std::vector < value_type >;
+        //using node_array_t = std::vector < node_type >;
+        //using obj2node_t = std::vector < size_t >;
     public:
         using iterator = typename obj_array_t::iterator;
         using const_iterator = typename obj_array_t::const_iterator;
@@ -92,12 +94,16 @@ namespace zks {
             size_t pos = hc % strategy_.table_size();
             size_t step = 0;
             for (; step < strategy_.bucket_size(); ++step, ++pos) {
+                if (pos >= table_.size()) {
+                    pos -= table_.size();
+                }
                 if (table_[pos].hash_code == 0) {
                     return end();
                 }
                 if (table_[pos].hash_code == hc
                     && equal_to_(obj, obj_array_[table_[pos].obj_idx])) {
                     return iterator(table_[pos].obj_idx, &obj_array_);
+                    //return obj_array_.begin() + table_[pos].obj_idx;
                 }
             }
             return end();
@@ -107,28 +113,27 @@ namespace zks {
             lock_t here(mutex_);
             strategy_.next();
             node_array_t new_table(max_size());
+            obj2node_t new_obj2node(obj_array_.size());
             
             node_type n;
             for (size_t i = 0; i < obj_array_.size(); ++i) {
                 n = table_[obj2node_[i]];
-                if (!insert_node_(std::move(n), &new_table)) {
+                if (!insert_node_(std::move(n), &new_table, &new_obj2node)) {
                     return false;
                 }
             }
 
             obj_array_.reserve(max_size());
             obj2node_.reserve(max_size());
-            table_ = new_table;
+            table_ = std::move(new_table);
+            obj2node_ = std::move(new_obj2node);
             return true;
         }
 
         res_pair insert(const value_type& obj) {
             lock_t here(mutex_);
-            iterator iter = find(obj);
-            if (iter != end()) {
-                return res_pair(iter, true);
-            }
             bool inserted{ false };
+            iterator iter;
             std::tie(iter, inserted) = insert_obj_(obj);
 
             size_t tries = 0;
@@ -159,12 +164,22 @@ namespace zks {
             n.hash_code = hash_(obj);
             size_t pos = n.hash_code % strategy_.table_size();
             size_t step = 0;
+            bool existed{ false };
             for (; step < strategy_.bucket_size(); ++step) {
+                if (pos >= table_.size()) {
+                    pos -= table_.size();
+                }
                 if (table_[pos].hash_code == 0)
                     break;
-                if (table_[pos].hash_code == n.hash_code && equal_to_(obj, obj_array_[table_[pos].obj_idx]))
+                if (table_[pos].hash_code == n.hash_code && equal_to_(obj, obj_array_[table_[pos].obj_idx])) {
+                    existed = true;
                     break;
+                }
                 ++pos;
+            }
+            if (existed) {
+                return res_pair(iterator(pos, &obj_array_), true);
+                //return res_pair(obj_array_.begin() + table_[pos].obj_idx, true);
             }
             if (step == strategy_.bucket_size()) {
                 return res_pair(end(), false);
@@ -176,13 +191,17 @@ namespace zks {
             table_[pos] = std::move(n);
 
             return res_pair(iterator(obj_array_.size() - 1, &obj_array_), true);
+            //return res_pair(obj_array_.begin() + obj_array_.size() - 1, true);
         }
 
-        bool insert_node_(node_type&& n, node_array_t* pTable) {
+        bool insert_node_(node_type&& n, node_array_t* pTable, obj2node_t* pObj2node) {
             lock_t here(mutex_);
             size_t pos = n.hash_code % strategy_.table_size();
             size_t step = 0;
             for (; step < strategy_.bucket_size(); ++step) {
+                if (pos >= pTable->size()) {
+                    pos -= pTable->size();
+                }
                 if ((*pTable)[pos].hash_code == 0)
                     break;
                 if ((*pTable)[pos].hash_code == n.hash_code && (*pTable)[pos].obj_idx == n.obj_idx) {
@@ -195,7 +214,7 @@ namespace zks {
                 return false;
             }
             (*pTable)[pos] = std::move(n);
-            obj2node_[n.obj_idx] = pos;
+            (*pObj2node)[n.obj_idx] = pos;
             return true;
         }
 
