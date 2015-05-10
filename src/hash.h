@@ -12,10 +12,11 @@
 #include <functional>
 #include <vector>
 #include <unordered_map>
+#include <cassert>
 
 namespace zks
 {
-
+    struct ValidHashCode {};
     template<int NBITS_>
     struct HashResType
     {
@@ -52,8 +53,12 @@ namespace zks
     template<int NBITS>
     struct MurmurHash
     {
-        typedef typename HashFuncType<NBITS>::result_type result_type;
-        typedef typename HashFuncType<NBITS>::hasher_type hasher_type;
+        typedef typename HashFuncType<NBITS> hash_func_t;
+        typedef typename HashResType<NBITS> hash_res_t;
+
+        typedef typename hash_func_t::result_type result_type;
+        typedef typename hash_func_t::hasher_type hasher_type;
+
         static const result_type SALT;
         static result_type hash(const void* key, size_t n, result_type seed);
         static result_type salt(bool fixed = false);
@@ -71,8 +76,11 @@ namespace zks
     template<> MurmurHash<128>::result_type MurmurHash<128>::salt(bool fixed);
     template<> MurmurHash<128>::result_type MurmurHash<128>::hash(const void* key, size_t n, result_type seed);
 
+    template<> MurmurHash<256>::result_type MurmurHash<256>::salt(bool fixed);
+    template<> MurmurHash<256>::result_type MurmurHash<256>::hash(const void* key, size_t n, result_type seed);
+
     template<int NBITS_, typename HashTraits = MurmurHash<NBITS_>, typename WordType = uint32_t>
-    struct Hashcode_base_
+    struct Hashcode_base_ : std::enable_if_t<HashTraits::hash_res_t::BITS >= NBITS_, ValidHashCode >
     {
         typedef Hashcode_base_<NBITS_, HashTraits, WordType> Self;
         typedef typename HashTraits::result_type result_type;
@@ -117,7 +125,7 @@ namespace zks
         Self& operator+=(ArgT_ const& rhs)
         {
             result_type* seed = (result_type*) &h;
-            result_type h2 = HashTraits::hash((void*) &rhs, sizeof(ArgT_), *seed);
+            result_type h2 = hasher((void*)&rhs, sizeof(ArgT_), *seed);
             std::memcpy((void*) h, (void*) &h2, BYTES);
             return *this;
         }
@@ -125,7 +133,7 @@ namespace zks
         Self& operator+=(const char* rhs)
         {
             result_type* seed = (result_type*) &h;
-            result_type h2 = HashTraits::hash((void*) rhs, std::strlen(rhs), *seed);
+            result_type h2 = hasher((void*)rhs, std::strlen(rhs), *seed);
             std::memcpy((void*) h, (void*) &h2, BYTES);
             return *this;
         }
@@ -138,9 +146,22 @@ namespace zks
         Self& operator+=(Hashcode_base_<N_, H_, W_> const& rhs)
         {
             result_type* seed = (result_type*) &h;
-            result_type h2 = HashTraits::hash((void*) &rhs.h, Hashcode_base_<N_, H_, W_>::BYTES, *seed);
+            result_type h2 = hasher((void*)&rhs.h, Hashcode_base_<N_, H_, W_>::BYTES, *seed);
             std::memcpy((void*) h, (void*) &h2, BYTES);
             return *this;
+        }
+
+        uint64_t to_uint64() const {
+            if (BYTES < 8) {
+                uint64_t ret{ 0 };
+                std::memcpy(&ret, &h, BYTES);
+                assert(BYTES < 8);
+                ret >> (64 - 8 * BYTES);
+                return ret;
+            }
+            else {
+                return *((uint64_t*)(&h));
+            }
         }
     };
 
@@ -164,7 +185,9 @@ namespace zks
     }
 
     typedef Hashcode_base_<32> HashCode32;
+    typedef Hashcode_base_<64> HashCode64;
     typedef Hashcode_base_<128> HashCode128;
+    typedef Hashcode_base_<256> HashCode256;
 
     template<typename T, int NBITS = 32, bool USE_SALT = false, typename WORD_TYPE = uint32_t>
     struct MMHash_base_

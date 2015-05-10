@@ -97,4 +97,64 @@ namespace zks
         return h;
     }
 
+    //256bit
+    template<> MurmurHash<256>::result_type MurmurHash<256>::salt(bool fixed)
+    {
+        if (fixed) {
+            result_type ret;
+            uint32_t* p = (uint32_t*)&ret;
+            (*p++) = 0x19876254;
+            (*p++) = 0xbadaccee;
+            (*p++) = 0xcdcdcdcd;
+            (*p++) = 0xabcdef07;
+
+            (*p++) = 0x58132134;
+            (*p++) = 0x94827513;
+            (*p++) = 0x16574893;
+            (*p) = 0x17932864;
+            return ret;
+        }
+
+        result_type h;
+        uint32_t* p0 = (uint32_t*)&h;
+        std::time_t now = std::time(nullptr);
+        char* nowstr = std::ctime(&now);
+        uint32_t seed;
+        MurmurHash3_x86_32((void*)nowstr, (int)std::strlen(nowstr), 0, (void*)&seed);
+
+        std::vector<zks::u8string> mac_addrs = get_mac_address();
+        for (size_t i = 0; i < mac_addrs.size(); ++i) {
+#ifdef _ZKS64
+            MurmurHash3_x64_128((void*)mac_addrs[i].data(), (int)mac_addrs[i].size(), seed, (void*)p0);
+#else
+            MurmurHash3_x86_128((void*)mac_addrs[i].data(), (int)mac_addrs[i].size(), seed, (void*)p0);
+#endif
+        }
+        std::advance(p0, 4);  //next 128;
+        for (size_t i = 0; i < mac_addrs.size(); ++i) {
+#ifdef _ZKS64
+            MurmurHash3_x64_128((void*)mac_addrs[i].data(), (int)mac_addrs[i].size(), seed, (void*)p0);
+#else
+            MurmurHash3_x86_128((void*)mac_addrs[i].data(), (int)mac_addrs[i].size(), seed, (void*)p0);
+#endif
+        }
+        return h;
+    }
+    template<> const MurmurHash<256>::result_type MurmurHash<256>::SALT = MurmurHash<256>::salt();
+    template<> MurmurHash<256>::result_type MurmurHash<256>::hash(const void* key, size_t n, result_type seed)
+    {
+        result_type h;
+        uint32_t* ph = (uint32_t*)&h;
+        uint32_t* ps = (uint32_t*)&seed;
+#ifdef _ZKS64
+        MurmurHash3_x64_128(key, (int)n, *(ps), (void*)ph);
+        ++ps; ph += 4;
+        MurmurHash3_x64_128(key, (int)n, *(ps), (void*)ph);
+#else
+        MurmurHash3_x32_128(key, (int)n, *(ps), (void*)ph);
+        ++ps; ph += 4;
+        MurmurHash3_x32_128(key, (int)n, *(ps), (void*)ph);
+#endif
+        return h;
+    }
 }

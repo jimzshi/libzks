@@ -35,12 +35,23 @@ int main(int argc, char* argv[])
     //test_mac();
     //test_hash1();
     //test_hash128();
+    //test_hashcode<32>(false);
+    //test_hashcode<64>(false);
+    //test_hashcode<128>(false);
+    //test_hashcode<256>(false);
+    //test_hashcode<32>(true);
+    //test_hashcode<64>(true);
+    //test_hashcode<128>(true);
+    //test_hashcode<256>(true);
+    //test_hashcode<32, 256, char>(true);
+    //test_hashcode<256, 128, char>(true);   //failed!
     //test_hashcode_128(false);
+    //test_hashcode_256(true);
     //test_bit();
     //test_chunk_array();
     //test_code();
     //test_hashvector(argc, argv);
-    test_hash_table(argc, argv);
+    //test_hash_table(argc, argv);
     //test_bitvector();
     //test_bitvector_perf();
     //test_rand();

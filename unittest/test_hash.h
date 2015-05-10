@@ -39,60 +39,48 @@ void test_hash128()
     return;
 }
 
-inline
+template<int NBIT, int HBIT, typename WORDTYPE>
+void log_hc(const char* msg, zks::Hashcode_base_ < NBIT, zks::MurmurHash<HBIT>, WORDTYPE > const& hc)
+{
+    zks::u8string grp;
+    grp.format(64, "test_hash_code<%d, MurmurHash<%d>, %d>", NBIT, HBIT, sizeof(WORDTYPE) * 8);
+    ZKS_INFO(logger, grp.c_str(), "%s: %s, %ull", msg, zks::to_u8string(hc).c_str(), hc.to_uint64());
+    return;
+}
+template<int NBIT, int HBIT = NBIT, typename WORDTYPE = uint32_t>
 void test_hashcode(bool salt = true)
 {
-    zks::HashCode32 h(salt);
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    using hashcode_t = zks::Hashcode_base_ < NBIT, zks::MurmurHash<HBIT>, WORDTYPE > ;
+
+    hashcode_t h(salt);
+    log_hc("h", h);
     h += 32;
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    log_hc("h+32", h);
     h += 11.23;
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    log_hc("h+11.23", h);
     h += "haha";
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    log_hc("h+haha", h);
     zks::u8string str(L"halo");
     h += str;
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
-    zks::HashCode32 h2(salt);
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h2).c_str());
+    log_hc("h+str", h);
+
+    hashcode_t h2(salt);
+    log_hc("h2", h2);
     h += h2;
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h).c_str());
+    log_hc("h+h2", h);
 
-    zks::Hashcode_base_<32, zks::MurmurHash<32>, char> h3(salt);
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
+    zks::Hashcode_base_ < NBIT, zks::MurmurHash<HBIT>, char > h3(salt);
+    log_hc("h3", h3);
     h3 += h;
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h3).c_str());
+    log_hc("h3+h", h3);
 
-    zks::Hashcode_base_<32, zks::MurmurHash<32>, uint16_t> h4(salt);
-    ZKS_INFO(logger, "hash1", "hash_u8: %s", zks::to_u8string(h4).c_str());
-}
+    zks::Hashcode_base_<NBIT, zks::MurmurHash<HBIT>, uint16_t> h4(salt);
+    log_hc("h4", h4);
+    h4 += h3;
+    h4 += h2;
+    log_hc("h4 + h2 + h3", h4);
 
-inline
-void test_hashcode_128(bool salt=true)
-{
-    zks::HashCode128 h(salt);
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8: %s", zks::to_u8string(h).c_str());
-    h += 32;
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + 32: %s", zks::to_u8string(h).c_str());
-    h += 11.23;
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + 11.23: %s", zks::to_u8string(h).c_str());
-    h += "haha";
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + haha: %s", zks::to_u8string(h).c_str());
-    zks::u8string str(L"halo");
-    h += str;
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8 + u8string(halo): %s", zks::to_u8string(h).c_str());
-    zks::HashCode128 h2(salt);
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h2): %s", zks::to_u8string(h2).c_str());
-    h += h2;
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h+h2): %s", zks::to_u8string(h).c_str());
-
-    zks::Hashcode_base_<128, zks::MurmurHash<128>, char> h3(salt);
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h3<char>): %s", zks::to_u8string(h3).c_str());
-    h3 += h;
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8: %s", zks::to_u8string(h3).c_str());
-
-    zks::Hashcode_base_<128, zks::MurmurHash<128>, uint16_t> h4(salt);
-    ZKS_INFO(logger, "test_hashcode_128", "hash_u8(h4<uint16_t): %s", zks::to_u8string(h4).c_str());
+    return;
 }
 
 inline
