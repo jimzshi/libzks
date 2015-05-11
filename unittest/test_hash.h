@@ -178,7 +178,7 @@ void test_hash_table(int argc, char* argv[])
     }
 
     std::vector<zks::u8string> items;
-    std::vector<zks::Hash_table_<zks::u8string>> field_symbols{ field_size };
+	std::vector < zks::Hash_container_< zks::u8string, zks::ChunkArray<zks::u8string>>> field_symbols{ field_size };
     size_t num = 0;
     zks::StopWatch sw;
     sw.start("start");

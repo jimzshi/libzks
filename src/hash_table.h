@@ -145,6 +145,10 @@ namespace zks {
             return res_pair(iter, inserted);
         }
 
+		res_pair push_back(const value_type& obj) {
+			return insert(obj);
+		}
+
         bool erase(iterator iter) {
             lock_t here(mutex_);
             if (iter == end()) {
@@ -285,6 +289,11 @@ namespace zks {
             m_hashtable_[v] = idx;
             return idx;
         }
+
+		size_t insert(Type const& v) {
+			return push_back(v);
+		}
+
         void erase(Type const& v)
         {
             if (!contains(v)) {

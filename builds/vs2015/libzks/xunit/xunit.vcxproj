@@ -21,6 +21,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{24B3C028-AA08-4D95-B5CA-94AC82093000}</ProjectGuid>
     <RootNamespace>xunit</RootNamespace>
+    <TargetPlatformVersion>8.1</TargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -71,11 +72,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>..\..\..\..\;..\..\..\..\src;$(IncludePath)</IncludePath>
-    <CustomBuildBeforeTargets>Midl</CustomBuildBeforeTargets>
+    <CustomBuildBeforeTargets>
+    </CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>..\..\..\..\;..\..\..\..\src;$(IncludePath)</IncludePath>
-    <CustomBuildBeforeTargets>Midl</CustomBuildBeforeTargets>
+    <CustomBuildBeforeTargets>
+    </CustomBuildBeforeTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <IncludePath>..\..\..\..\cxxtest;..\..\..\..\src;$(IncludePath)</IncludePath>
@@ -88,17 +91,20 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>echo "Generating .cpp files for unit test ..."
-c:\python27\python.exe ..\..\..\..\cxxtest\cxxtestgen --runner=ParenPrinter -o ..\..\..\..\xunit\UnitTest.cpp ..\..\..\..\xunit\UnitTest.h</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Message>cxxtestgen cpp files.</Message>
-      <Outputs>..\..\..\..\xunit\UnitTest.cpp</Outputs>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>echo "----------------------------------------------"
@@ -109,8 +115,10 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <Message>runner.exe</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)..\..\..\xunit
+echo "pre-build to generate unitest cpp files."
+python.exe ..\cxxtest\cxxtestgen --runner=ParenPrinter -o UnitTest.cpp UnitTest.h</Command>
+      <Message>update unit test code</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -118,16 +126,20 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <CustomBuildStep>
-      <Command>python.exe ..\cxxtest\cxxtestgen --runner=ParenPrinter -o UnitTest.cpp UnitTest.h</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Message>cxxtestgen cpp files.</Message>
-      <Outputs>UnitTest.cpp</Outputs>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>$(OutDir)$(TargetName)$(TargetExt)</Command>
@@ -135,6 +147,14 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
     <PostBuildEvent>
       <Message>runner.exe</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)..\..\..\xunit
+echo "pre-build to generate unitest cpp files."
+python.exe ..\cxxtest\cxxtestgen --runner=ParenPrinter -o UnitTest.cpp UnitTest.h</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>update unit test code</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -143,6 +163,7 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -150,12 +171,14 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>echo "Generating .cpp files for unit test ..."
-c:\python27\python.exe ..\..\..\..\cxxtest\cxxtestgen --runner=ParenPrinter -o ..\..\..\..\xunit\UnitTest.cpp ..\..\..\..\xunit\UnitTest.h</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Message>cxxtestgen cpp files.</Message>
-      <Outputs>..\..\..\..\xunit\UnitTest.cpp</Outputs>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>echo "----------------------------------------------"
@@ -166,8 +189,10 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <Message>runner.exe</Message>
     </PostBuildEvent>
     <PreBuildEvent>
-      <Command>
-      </Command>
+      <Command>cd $(SolutionDir)..\..\..\xunit
+echo "pre-build to generate unitest cpp files."
+python.exe ..\cxxtest\cxxtestgen --runner=ParenPrinter -o UnitTest.cpp UnitTest.h</Command>
+      <Message>update unit test code</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -177,6 +202,7 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -184,11 +210,14 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <CustomBuildStep>
-      <Command>python.exe ..\cxxtest\cxxtestgen --runner=ParenPrinter -o UnitTest.cpp UnitTest.h</Command>
+      <Command>
+      </Command>
     </CustomBuildStep>
     <CustomBuildStep>
-      <Message>cxxtestgen cpp files.</Message>
-      <Outputs>UnitTest.cpp</Outputs>
+      <Message>
+      </Message>
+      <Outputs>
+      </Outputs>
     </CustomBuildStep>
     <PostBuildEvent>
       <Command>$(OutDir)$(TargetName)$(TargetExt)</Command>
@@ -196,6 +225,14 @@ $(OutDir)$(TargetName)$(TargetExt)</Command>
     <PostBuildEvent>
       <Message>runner.exe</Message>
     </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>cd $(SolutionDir)..\..\..\xunit
+echo "pre-build to generate unitest cpp files."
+python.exe ..\cxxtest\cxxtestgen --runner=ParenPrinter -o UnitTest.cpp UnitTest.h</Command>
+    </PreBuildEvent>
+    <PreBuildEvent>
+      <Message>update unit test code</Message>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ProjectReference Include="..\libzks\libzks.vcxproj">

@@ -19,16 +19,16 @@ int main( int argc, char *argv[] ) {
     return status;
 }
 bool suite_MyTestSuite1_init = false;
-#include "C:\github\jimzshi\libzks\xunit\UnitTest.h"
+#include "UnitTest.h"
 
 static MyTestSuite1 suite_MyTestSuite1;
 
 static CxxTest::List Tests_MyTestSuite1 = { 0, 0 };
-CxxTest::StaticSuiteDescription suiteDescription_MyTestSuite1( "../../../../xunit/UnitTest.h", 7, "MyTestSuite1", suite_MyTestSuite1, Tests_MyTestSuite1 );
+CxxTest::StaticSuiteDescription suiteDescription_MyTestSuite1( "UnitTest.h", 10, "MyTestSuite1", suite_MyTestSuite1, Tests_MyTestSuite1 );
 
 static class TestDescription_suite_MyTestSuite1_testAddition : public CxxTest::RealTestDescription {
 public:
- TestDescription_suite_MyTestSuite1_testAddition() : CxxTest::RealTestDescription( Tests_MyTestSuite1, suiteDescription_MyTestSuite1, 10, "testAddition" ) {}
+ TestDescription_suite_MyTestSuite1_testAddition() : CxxTest::RealTestDescription( Tests_MyTestSuite1, suiteDescription_MyTestSuite1, 13, "testAddition" ) {}
  void runTest() { suite_MyTestSuite1.testAddition(); }
 } testDescription_suite_MyTestSuite1_testAddition;
 
