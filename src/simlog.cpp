@@ -38,9 +38,9 @@ namespace zks
             va_start(arg_list, fmt);
             msg_buff_.format(config.buff.msg_max_size, fmt, arg_list);
             va_end(arg_list);
-            line_buff_.format(config.buff.line_buff_size, fmt_str_.c_str(), config.format.fieldset[Column::DATETIME] ? get_datetime_().c_str() : "",
-                    config.format.fieldset[Column::EPOCHTIME] ?
-                            (size_t) std::chrono::duration_cast<std::chrono::microseconds>(clock_t::now() - epoch_).count() : 0,
+            line_buff_.format(config.buff.line_buff_size, fmt_str_.c_str(), 
+                    config.format.fieldset[Column::DATETIME] ? get_datetime_() : "",
+                    config.format.fieldset[Column::EPOCHTIME] ? (size_t) std::chrono::duration_cast<std::chrono::microseconds>(clock_t::now() - epoch_).count() : 0,
                     config.format.fieldset[Column::THREAD] ? thread_hash_(std::this_thread::get_id()) : 0, config.format.fieldset[Column::FILE] ? file : "",
                     config.format.fieldset[Column::FUNC] ? func : "", config.format.fieldset[Column::LINE] ? line : 0,
                     config.format.fieldset[Column::GROUP] ? group.c_str() : "", config.format.fieldset[Column::LEVEL] ? level_string[level].c_str() : "",
@@ -58,13 +58,12 @@ namespace zks
         }
     }
 
-    u8string simlog::get_datetime_()
+    const char* simlog::get_datetime_()
     {
         //locale_guard HERE(std::locale(config.format.locale.c_str()));
         std::time_t t = std::time(NULL);
-        wchar_t wstr[100];
-        if (std::wcsftime(wstr, 100, config.format.strftime.wstring().c_str(), std::localtime(&t))) {
-            return u8string { wstr };
+        if (std::strftime(time_buff_, 128, config.format.strftime.c_str(), std::localtime(&t))) {
+            return time_buff_;
         }
         else {
             return {"bad_time"};

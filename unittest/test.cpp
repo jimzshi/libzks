@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
     //test_hashcode<32>(true);
     //test_hashcode<64>(true);
     //test_hashcode<128>(true);
-    //test_hashcode<256>(true);
+    for(int i=0; i<10000; ++i) test_hashcode<64>(true);
     //test_hashcode<32, 256, char>(true);
     //test_hashcode<256, 128, char>(true);   //failed!
     //test_hashcode_128(false);

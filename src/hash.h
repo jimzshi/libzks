@@ -99,7 +99,7 @@ namespace zks
     public:
         Hashcode_base_(bool use_salt = true)
         {
-            result_type s = HashTraits::salt(!use_salt);
+            result_type s = use_salt ? HashTraits::SALT : HashTraits::salt(true);
             std::memcpy((void*)&h, (void*)&s, BYTES);
         }
         Hashcode_base_(const Hashcode_base_& rh) {

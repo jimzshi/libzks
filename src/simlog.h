@@ -134,6 +134,7 @@ namespace zks
         u8string line_buff_;
         u8string msg_buff_;
         u8string buff_;
+        char time_buff_[128];
         clock_t::time_point epoch_;
 
     public:
@@ -213,7 +214,7 @@ namespace zks
             epoch_ = clock_t::now();
         }
         void reset_ostream_();
-        u8string get_datetime_();
+        const char* get_datetime_();
 
         //class locale_guard{
         //	std::locale old_;
