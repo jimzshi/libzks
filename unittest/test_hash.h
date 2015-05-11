@@ -87,6 +87,7 @@ inline
 void test_hashvector(int argc, char* argv[])
 {
     if (argc < 5) {
+        ZKS_ERROR(logger, "hashvector", "%s log.ini log.txt txt-file num-of-fields. only %d args recieved.", argv[0], argc);
         return;
     }
     std::ifstream ifs(argv[3]);

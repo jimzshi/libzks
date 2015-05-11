@@ -360,7 +360,7 @@ namespace zks
         else if ((size_t)sz > max) {
             sz = (int)max;
         }
-        append(buff.get());
+        append(buff.get(), sz);
         on_change_();
         return *this;
     }

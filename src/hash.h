@@ -53,8 +53,8 @@ namespace zks
     template<int NBITS>
     struct MurmurHash
     {
-        typedef typename HashFuncType<NBITS> hash_func_t;
-        typedef typename HashResType<NBITS> hash_res_t;
+        typedef HashFuncType<NBITS> hash_func_t;
+        typedef HashResType<NBITS> hash_res_t;
 
         typedef typename hash_func_t::result_type result_type;
         typedef typename hash_func_t::hasher_type hasher_type;
@@ -156,7 +156,7 @@ namespace zks
                 uint64_t ret{ 0 };
                 std::memcpy(&ret, &h, BYTES);
                 assert(BYTES < 8);
-                ret >> (64 - 8 * BYTES);
+                ret = ret >> (64 - 8 * BYTES);
                 return ret;
             }
             else {
