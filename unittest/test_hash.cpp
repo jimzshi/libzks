@@ -23,10 +23,10 @@ int main(int argc, char* argv[]) {
     logger.reset();
 
     //test_hash();
-    test_hash128();
+    //test_hash128();
     //test_hashcode(false);
-    test_hashcode_128(false);
-    test_hashvector(argc, argv);
+    //test_hashcode_128(false);
+    //test_hashvector(argc, argv);
 
     return 0;
 }
