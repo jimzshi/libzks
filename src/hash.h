@@ -156,7 +156,7 @@ namespace zks
                 uint64_t ret{ 0 };
                 std::memcpy(&ret, &h, BYTES);
                 assert(BYTES < 8);
-                ret >> (64 - 8 * BYTES);
+                ret >>= (64 - 8 * BYTES);
                 return ret;
             }
             else {

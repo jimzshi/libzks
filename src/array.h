@@ -6,6 +6,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <memory>
+#include <cassert>
 
 namespace zks
 {
@@ -15,21 +16,17 @@ namespace zks
     {
         typedef T_* pointer;
 
+        pointer data;
+        size_t capacity;
         size_t size;
         size_t ref;
-        pointer data;
+        
 
-        Ref_array_traits_()
+        Ref_array_traits_() : data(nullptr), capacity(0), size(0), ref(1)
         {
-            ref = 1;
-            size = 0;
-            data = new T_[0];
         }
-        Ref_array_traits_(size_t sz)
+        Ref_array_traits_(size_t sz) : data(new T_[sz]()), capacity(sz), size(0), ref(1)
         {
-            ref = 1;
-            size = sz;
-            data = new T_[sz]();
         }
         ~Ref_array_traits_()
         {
@@ -40,8 +37,9 @@ namespace zks
             if (ref == 1) {
                 return this;
             }
-            Ref_array_traits_* p = new Ref_array_traits_(size);
+            Ref_array_traits_* p = new Ref_array_traits_(capacity);
             std::copy(data, data + size, p->data);
+            p->size = size;
             --ref;
             return p;
         }
@@ -72,7 +70,8 @@ namespace zks
         }
         LazyArray(const LazyArray& vec)
         {
-            vec.rep->ref++;
+            if(vec.rep)
+                ++vec.rep->ref;
             rep = vec.rep;
         }
         LazyArray(LazyArray&& rh)
@@ -85,7 +84,7 @@ namespace zks
             if (rh.rep == rep) {
                 return *this;
             }
-            if (--rep->ref == 0) {
+            if (rep && --rep->ref == 0) {
                 delete rep;
             }
             rh.rep->ref++;
@@ -94,7 +93,13 @@ namespace zks
         }
         const LazyArray& operator=(LazyArray&& rh)
         {
-            if (rep && (--rep->ref == 0)) {
+            if (rep == rh.rep) {
+                if(rep)
+                    --rep->ref;
+                rh.rep = nullptr;
+                return *this;
+            }
+            if(rep && --rep->ref==0) {
                 delete rep;
             }
             rep = rh.rep;
@@ -116,12 +121,16 @@ namespace zks
         {
             return rep->size;
         }
+        size_t capacity() const {
+            return rep->capacity;
+        }
         size_t ref() const
         {
             return rep->ref;
         }
         StorageType const& operator[](size_t sz) const
         {
+            assert(sz < rep->size);
             return *(rep->data + sz);
         }
         StorageType const* cbegin() const
@@ -132,33 +141,55 @@ namespace zks
         {
             return rep->data + rep->size;
         }
+        StorageType const* cdata() const
+        {
+            return rep->data;
+        }
+        template<typename Equal_ = std::equal_to<StorageType>>
+        size_t find(StorageType const& v, Equal_ eq) const {
+            for(size_t i=0; i<rep->size; ++i) {
+                if(eq(v, rep->data[i])) {
+                    return i;
+                }
+            }
+            return size_t(-1);
+        }
+
         StorageType* begin()
         {
+            rep = rep->detach();
             return rep->data;
         }
         StorageType* end()
         {
+            rep = rep->detach();
             return rep->data + rep->size;
         }
-
-        StorageType& at(size_t sz)
+        StorageType& operator[](size_t sz) {
+            assert(sz < rep->size);
+            rep = rep->detach();
+            return *(rep->data + sz);
+        }
+        StorageType& at(size_t sz)  //safely grow index;
         {
+            if(sz >= rep->size) {
+                resize(sz+1);
+            }
             rep = rep->detach();
             return *(rep->data + sz);
         }
         StorageType& last()
         {
-            return back();
+            rep = rep->detach();
+            return *(rep->data + rep->size - 1);
         }
         StorageType& front()
         {
-            rep = rep->detach();
-            return *(rep->data);
+            return *begin();
         }
         StorageType& back()
         {
-            rep = rep->detach();
-            return *(rep->data + rep->size - 1);
+            return last();
         }
         StorageType* data()
         {
@@ -166,96 +197,138 @@ namespace zks
             return rep->data;
         }
 
+        void reserve(size_t nsz) {
+            if(nsz <= rep->capacity) {
+                return;
+            }
+            size_t new_cap = zks::next_pow2(nsz);
+            impl_t* p = new impl_t(new_cap);
+            if(rep->ref == 1) {
+                std::move(rep->data, rep->data + rep->size, p->data);
+            } else {
+                std::copy(rep->data, rep->data + rep->size, p->data);
+                --rep->ref;
+            }
+            p->size = rep->size;
+            rep = p;
+            return;
+        }
+        void resize(size_t nsz)
+        {
+            if (nsz == rep->size) {
+                return;
+            }
+            if (nsz > rep->capacity) {
+                reserve(nsz);
+            } else {
+                rep = rep->detach();
+            }
+            if(nsz < rep->size) {
+                std::for_each(rep->data + nsz, rep->data + rep->size, [](StorageType& v) { v.~StorageType();});
+            }
+            rep->size = nsz;
+            return;
+        }
+        
+        void insert_at(size_t pos, StorageType const& v) {
+            size_t nsz( std::max(pos, rep->size) + 1);  //for pos > rep->size;
+            if(nsz > rep->capacity) {
+                reserve(nsz);
+            }
+            if(rep->ref == 1) {
+                for(size_t i=rep->size - 1; i>=pos; --i) {
+                    rep->data[i+1] = std::move(rep->data[i]);
+                }
+            } else {
+                impl_t* p = new impl_t(nsz);
+                std::copy(rep->data, rep->data + std::min(pos, rep->size), p->data);  // for pos > rep->size;
+                std::copy(rep->data + pos, rep->data + rep->size, p->data + pos + 1);
+                --rep->ref;
+                rep = p;
+            }
+            (rep->data)[pos] = v;
+            rep->size = nsz;
+            return;
+        }
         size_t insert(size_t pos, StorageType const& v)
         {
             if (pos > rep->size) {
                 return size_t(-1);
             }
-            size_t nsz(rep->size + 1);
-            impl_t* p = new impl_t(nsz);
-            std::copy(rep->data, rep->data + pos, p->data);
-            (p->data)[pos] = v;
-            std::copy(rep->data + pos, rep->data + rep->size, p->data + pos + 1);
-            if (--rep->ref == 0) {
-                delete rep;
-            }
-            rep = p;
+            insert_at(pos, v);
             return pos;
-        }
-
-        void push_back(StorageType const& v)
-        {
-            size_t sz = rep->size;
-            impl_t* p = new impl_t(sz + 1);
-            std::copy(rep->data, rep->data + sz, p->data);
-            (p->data)[sz] = v;
-            if (--rep->ref == 0) {
-                delete rep;
-            }
-            rep = p;
-            return;
-        }
-        Type& append()
-        {
-            size_t sz = rep->size;
-            impl_t* p = new impl_t(sz + 1);
-            std::copy(rep->data, rep->data + sz, p->data);
-            if (--rep->ref == 0) {
-                delete rep;
-            }
-            rep = p;
-            return rep->data[sz];
         }
         size_t erase(size_t pos, size_t n = 1)
         {
-            if (pos > (rep->size - 1)) {
+            if (pos >= rep->size || n == 0) {
                 return size_t(-1);
             }
             if (n > (rep->size - pos)) {
                 n = rep->size - pos;
             }
             size_t new_size = rep->size - n;
-            impl_t* p = new impl_t(new_size);
-            std::copy(rep->data, rep->data + pos, p->data);
-            std::copy(rep->data + pos + n, rep->data + rep->size, p->data + pos);
-            if (--rep->ref == 0) {
+            if(rep->ref == 1) {
+                std::move(rep->data + pos + n, rep->data + rep->size, rep->pos);
+                std::for_each(rep->data + new_size, rep->data + rep->size, [](StorageType& v) { v.~StorageType();});
+            } else {
+                impl_t* p = new impl_t(rep->capacity);
+                std::copy(rep->data, rep->data + pos, p->data);
+                std::copy(rep->data + pos + n, rep->data + rep->size, p->data + pos);
+                --rep->ref;
+                rep = p;
+            }
+            rep->size = new_size;
+            return pos;
+        }
+        void shrink_to_fit() {
+            if(rep->size == rep->capacity)
+                return;
+            impl_t* p = new impl_t(rep->size);
+            p->size = rep->size;
+            if(rep->ref == 1) {
+                std::move(rep->data, rep->data + rep->size, p->data);
+            } else {
+                std::copy(rep->data, rep->data + rep->size, p->data);
+            }
+            if(--rep->ref == 0) {
                 delete rep;
             }
             rep = p;
-            return pos;
         }
+        void push_back(StorageType const& v)
+        {
+            insert_at(rep->size, v);
+        }
+        StorageType& append()
+        {
+            insert_at(rep->size, StorageType());
+            return last();
+        }
+
         void clear()
         {
             erase(0, rep->size);
         }
         void reverse()
         {
-            size_t s = rep->size;
-            impl_t* p = new impl_t(s);
-            for (size_t i = 0; i < s; ++i) {
-                (p->data)[i] = (rep->data)[s - 1 - i];
-            }
-            if (--rep->ref == 0) {
-                delete rep;
-            }
-            rep = p;
-        }
-        void resize(size_t nsz)
-        {
-            if (nsz < 0 || nsz == rep->size) {
+            if(rep->ref == 1) {
+                for(size_t i=0, mid = rep->size / 2; i<mid; ++i) {
+                    std::swap(rep->data[i], rep->data[rep->size - 1 -i]);
+                }
                 return;
             }
-            impl_t* p = new impl_t(nsz);
-            size_t copy_size = ((nsz < rep->size) ? nsz : rep->size);
-            for (size_t i = 0; i < copy_size; ++i) {
-                (p->data)[i] = (rep->data)[i];
+            
+            impl_t* p = new impl_t(rep->capacity);
+            for (size_t i = 0; i < rep->size; ++i) {
+                (p->data)[i] = (rep->data)[rep->size - 1 - i];
             }
+            p->size = rep->size;
             if (--rep->ref == 0) {
                 delete rep;
             }
             rep = p;
-            return;
         }
+
     };
     // LazyArray
 
