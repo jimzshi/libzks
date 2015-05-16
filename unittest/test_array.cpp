@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
     logger.reset();
 
     test_chunk_array();
+    test_lazy_array();
 
     return 0;
 }

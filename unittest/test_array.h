@@ -93,10 +93,18 @@ void test_lazy_array() {
     log_array("ta2 again", ta2);
     ta2 = ta1;
     log_array("ta2", ta2);
-
-    LOGA(ta1, clear());
+    
     LOGA(ta1, shrink_to_fit());
+    log_array("ta1", ta1);
+    log_array("ta2", ta2);
+    
+    LOGA(ta1, clear());
+    log_array("ta1", ta1);
+    log_array("ta2", ta2);
+
     LOGA(ta2, clear());
+    log_array("ta1", ta1);
+    log_array("ta2", ta2);
 }
 
 inline
