@@ -6,6 +6,8 @@
 #include <type_traits>
 #include <algorithm>
 #include <memory>
+#include <tuple>
+
 #include <cassert>
 
 namespace zks
@@ -25,12 +27,15 @@ namespace zks
         Ref_array_traits_() : data(nullptr), capacity(0), size(0), ref(1)
         {
         }
-        Ref_array_traits_(size_t sz) : data(new T_[sz]()), capacity(sz), size(0), ref(1)
+        Ref_array_traits_(size_t sz) : size(0), ref(1)
         {
+            std::tie(data, capacity) = std::get_temporary_buffer<T_>(sz);
+            assert(capacity == sz);
         }
         ~Ref_array_traits_()
         {
-            delete[] data;
+            std::for_each(data, data + size, [](T_& v) { v.~T_(); });
+            std::return_temporary_buffer(data);
         }
         Ref_array_traits_* detach()
         {
@@ -38,7 +43,7 @@ namespace zks
                 return this;
             }
             Ref_array_traits_* p = new Ref_array_traits_(capacity);
-            std::copy(data, data + size, p->data);
+            std::copy(data, data + size, std::raw_storage_iterator<T_*, T_>(p->data));
             p->size = size;
             --ref;
             return p;
@@ -65,7 +70,7 @@ namespace zks
         {
         }
         LazyArray(size_t sz) :
-                rep(new impl_t(sz))
+                rep(new impl_t(zks::next_pow2(sz)))
         {
         }
         LazyArray(const LazyArray& vec)
@@ -204,11 +209,13 @@ namespace zks
             size_t new_cap = zks::next_pow2(nsz);
             impl_t* p = new impl_t(new_cap);
             if(rep->ref == 1) {
-                std::move(rep->data, rep->data + rep->size, p->data);
+                std::move(rep->data, rep->data + rep->size, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data));
                 p->size = rep->size;
                 delete rep;
             } else {
-                std::copy(rep->data, rep->data + rep->size, p->data);
+                std::copy(rep->data, rep->data + rep->size, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data));
                 --rep->ref;
                 p->size = rep->size;
             }
@@ -228,6 +235,9 @@ namespace zks
             if(nsz < rep->size) {
                 std::for_each(rep->data + nsz, rep->data + rep->size, [](StorageType& v) { v.~StorageType();});
             }
+            else {
+                std::for_each(rep->data + rep->size, rep->data + nsz, [](StorageType& v) { new(&v) StorageType(); });
+            }
             rep->size = nsz;
             return;
         }
@@ -239,15 +249,20 @@ namespace zks
             }
             if (rep->ref == 1) {
                 if (rep->size) {
-                    for (size_t i = rep->size - 1; i >= pos; --i) {
-                        rep->data[i + 1] = std::move(rep->data[i]);
+                    for (size_t i = rep->size; i < nsz; ++i) {
+                        new(rep->data + i) StorageType();
+                    }
+                    if (pos < rep->size) {
+                        std::move_backward(rep->data + pos, rep->data + rep->size, rep->data + nsz);
                     }
                 }
             }
             else {
                 impl_t* p = new impl_t(nsz);
-                std::copy(rep->data, rep->data + std::min(pos, rep->size), p->data);  // for pos > rep->size;
-                std::copy(rep->data + pos, rep->data + rep->size, p->data + pos + 1);
+                std::copy(rep->data, rep->data + std::min(pos, rep->size), 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data));  // for pos > rep->size;
+                std::copy(rep->data + pos, rep->data + rep->size, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data + pos + 1));
                 --rep->ref;
                 rep = p;
             }
@@ -293,8 +308,10 @@ namespace zks
                 std::for_each(rep->data + new_size, rep->data + rep->size, [](StorageType& v) { v.~StorageType();});
             } else {
                 impl_t* p = new impl_t(rep->capacity);
-                std::copy(rep->data, rep->data + pos, p->data);
-                std::copy(rep->data + pos + n, rep->data + rep->size, p->data + pos);
+                std::copy(rep->data, rep->data + pos, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data));
+                std::copy(rep->data + pos + n, rep->data + rep->size, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data + pos));
                 --rep->ref;
                 rep = p;
             }
@@ -307,9 +324,11 @@ namespace zks
             impl_t* p = new impl_t(rep->size);
             p->size = rep->size;
             if(rep->ref == 1) {
-                std::move(rep->data, rep->data + rep->size, p->data);
+                std::move(rep->data, rep->data + rep->size, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data));
             } else {
-                std::copy(rep->data, rep->data + rep->size, p->data);
+                std::copy(rep->data, rep->data + rep->size, 
+                    std::raw_storage_iterator<StorageType*, StorageType>(p->data));
             }
             if(--rep->ref == 0) {
                 delete rep;
@@ -332,7 +351,8 @@ namespace zks
                 }
                 else {
                     impl_t* p = new impl_t(rep->capacity);
-                    std::copy(rep->data, rep->data + rep->size, p->data);
+                    std::copy(rep->data, rep->data + rep->size, 
+                        std::raw_storage_iterator<StorageType*, StorageType>(p->data));
                     p->size = rep->size + 1;
                     --rep->ref;
                     rep = p;
@@ -359,7 +379,7 @@ namespace zks
             
             impl_t* p = new impl_t(rep->capacity);
             for (size_t i = 0; i < rep->size; ++i) {
-                (p->data)[i] = (rep->data)[rep->size - 1 - i];
+                new(p->data + i) StorageType((rep->data)[rep->size - 1 - i]);
             }
             p->size = rep->size;
             if (--rep->ref == 0) {
