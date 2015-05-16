@@ -205,11 +205,13 @@ namespace zks
             impl_t* p = new impl_t(new_cap);
             if(rep->ref == 1) {
                 std::move(rep->data, rep->data + rep->size, p->data);
+                p->size = rep->size;
+                delete rep;
             } else {
                 std::copy(rep->data, rep->data + rep->size, p->data);
                 --rep->ref;
+                p->size = rep->size;
             }
-            p->size = rep->size;
             rep = p;
             return;
         }
@@ -230,25 +232,44 @@ namespace zks
             return;
         }
         
-        void insert_at(size_t pos, StorageType const& v) {
-            size_t nsz( std::max(pos, rep->size) + 1);  //for pos > rep->size;
-            if(nsz > rep->capacity) {
+        StorageType& insert_at(size_t pos) {
+            size_t nsz(std::max(pos, rep->size) + 1);  //for pos > rep->size;
+            if (nsz > rep->capacity) {
                 reserve(nsz);
             }
-            if(rep->ref == 1) {
-                for(size_t i=rep->size - 1; i>=pos; --i) {
-                    rep->data[i+1] = std::move(rep->data[i]);
+            if (rep->ref == 1) {
+                if (rep->size) {
+                    for (size_t i = rep->size - 1; i >= pos; --i) {
+                        rep->data[i + 1] = std::move(rep->data[i]);
+                    }
                 }
-            } else {
+            }
+            else {
                 impl_t* p = new impl_t(nsz);
                 std::copy(rep->data, rep->data + std::min(pos, rep->size), p->data);  // for pos > rep->size;
                 std::copy(rep->data + pos, rep->data + rep->size, p->data + pos + 1);
                 --rep->ref;
                 rep = p;
             }
-            (rep->data)[pos] = v;
             rep->size = nsz;
+            return (rep->data)[pos];
+        }
+        void insert_at(size_t pos, StorageType&& v) {
+            insert_at(pos) = std::move(v);
             return;
+        }
+
+        void insert_at(size_t pos, StorageType const& v) {
+            insert_at(pos) = v;
+            return;
+        }
+        size_t insert(size_t pos, StorageType&& v)
+        {
+            if (pos > rep->size) {
+                return size_t(-1);
+            }
+            insert_at(pos, std::move(v));
+            return pos;
         }
         size_t insert(size_t pos, StorageType const& v)
         {
@@ -268,7 +289,7 @@ namespace zks
             }
             size_t new_size = rep->size - n;
             if(rep->ref == 1) {
-                std::move(rep->data + pos + n, rep->data + rep->size, rep->pos);
+                std::move(rep->data + pos + n, rep->data + rep->size, rep->data + pos);
                 std::for_each(rep->data + new_size, rep->data + rep->size, [](StorageType& v) { v.~StorageType();});
             } else {
                 impl_t* p = new impl_t(rep->capacity);
@@ -295,14 +316,32 @@ namespace zks
             }
             rep = p;
         }
+        void push_back(StorageType&& v)
+        {
+            insert_at(rep->size, std::move(v));
+        }
         void push_back(StorageType const& v)
         {
             insert_at(rep->size, v);
         }
         StorageType& append()
         {
-            insert_at(rep->size, StorageType());
-            return last();
+            if (rep->size + 1 <= rep->capacity) {
+                if (rep->ref == 1) {
+                    ++rep->size;
+                }
+                else {
+                    impl_t* p = new impl_t(rep->capacity);
+                    std::copy(rep->data, rep->data + rep->size, p->data);
+                    p->size = rep->size + 1;
+                    --rep->ref;
+                    rep = p;
+                }
+            }
+            else {
+                insert_at(rep->size, StorageType());
+            }
+            return *(rep->data + rep->size - 1);
         }
 
         void clear()
