@@ -84,7 +84,7 @@ void test_hashcode(bool salt = true)
 }
 
 inline
-void test_hashvector(int argc, char* argv[])
+void test_hashvector(int argc, const char* argv[])
 {
     if (argc < 5) {
         return;
