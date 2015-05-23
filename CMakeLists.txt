@@ -29,6 +29,7 @@ FIND_PATH(CXXTEST_INCLUDE_DIR
   /usr/include/
   /usr/local/include/
   #MSVC
+  "$ENV{UserProfile}/local/include/"
   "$ENV{LIB_DIR}/include"
   $ENV{CXXTEST_INCLUDE_PATH}
   #mingw
