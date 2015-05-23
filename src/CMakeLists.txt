@@ -7,7 +7,7 @@ SET_SOURCE_FILES_PROPERTIES(
   MACOSX_PACKAGE_LOCATION Resources
   )
 
-add_library (zks STATIC ${ZKS_SRC} ${ZKS_HEADER} simlog.ini)
+add_library (zks STATIC ${ZKS_SRC} ${ZKS_HEADER} simlog.ini zks.natvis)
 
 install (TARGETS zks DESTINATION lib)
 install (FILES ${ZKS_HEADER} DESTINATION include/libzks)
