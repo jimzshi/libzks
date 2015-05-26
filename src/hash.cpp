@@ -151,9 +151,9 @@ namespace zks
         ++ps; ph += 4;
         MurmurHash3_x64_128(key, (int)n, *(ps), (void*)ph);
 #else
-        MurmurHash3_x32_128(key, (int)n, *(ps), (void*)ph);
+        MurmurHash3_x86_128(key, (int)n, *(ps), (void*)ph);
         ++ps; ph += 4;
-        MurmurHash3_x32_128(key, (int)n, *(ps), (void*)ph);
+        MurmurHash3_x86_128(key, (int)n, *(ps), (void*)ph);
 #endif
         return h;
     }
