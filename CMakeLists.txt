@@ -5,12 +5,14 @@ project(libzks)
 if(NOT CMAKE_BUILD_TYPE)
     set( CMAKE_BUILD_TYPE Release )
 endif()
+
 string( TOLOWER ${CMAKE_BUILD_TYPE} CONFIG )
 set( CMAKE_DEBUG_POSTFIX "_d" )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
 	string(CONCAT CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -lc++")
 endif()
+
 if(MSVC)
 	string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
 endif()
@@ -19,6 +21,26 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 endif()
 string(CONCAT CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} " -DDEBUG -D_DEBUG")
 string(CONCAT CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} " -D_NDEBUG")
+
+FIND_PATH(CXXTEST_INCLUDE_DIR
+  cxxtest/TestSuite.h
+  PATHS
+  "$ENV{HOME}/local/include/"
+  /usr/include/
+  /usr/local/include/
+  #MSVC
+  "$ENV{UserProfile}/local/include/"
+  "$ENV{LIB_DIR}/include"
+  $ENV{CXXTEST_INCLUDE_PATH}
+  #mingw
+  c:/msys/local/include
+  )
+find_package(CxxTest)
+if(CXXTEST_FOUND)
+    message(STATUS "CxxTest Found: ${CXXTEST_INCLUDE_DIR}")
+else (CXXTEST_FOUND)
+    message(WARNING, "CxxTest NOT Found.")
+endif()
 
 MESSAGE(STATUS "CONFIG : ${CONFIG}")
 MESSAGE(STATUS "CMAKE_BUILD_TYPE : ${CMAKE_BUILD_TYPE}")
@@ -40,3 +62,4 @@ find_package ( Threads REQUIRED )
 
 add_subdirectory (src)
 add_subdirectory (unittest)
+add_subdirectory (xunit)
