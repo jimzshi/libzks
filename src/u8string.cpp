@@ -459,7 +459,7 @@ namespace zks
     u8string u8string::unquote(u8string const& q, u8string const& escape) const
     {
         size_type p { 0 }, end { size() }, qsz(q.size()), esz(escape.size());
-        if (!startswith(q) || !endswith(q) || end < qsz || compare(q) == 0) {
+        if (!startswith(q) || !endswith(q) || end < qsz || compare(q) == 0 || qsz == 0) {
             return *this;
         }
 

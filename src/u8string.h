@@ -12,6 +12,7 @@
 #include <vector>
 #include <type_traits>
 #include <locale>
+#include <cassert>
 
 namespace zks
 {
@@ -1082,6 +1083,19 @@ namespace zks
             return split(raw_item, s, q, q);
         }
         u8string join(std::vector<u8string> const& items, u8string const& quote, u8string const& escape) const;
+		template<typename Iter>
+		u8string join(std::vector<u8string> const& items, u8string const& quote, u8string const& escape, Iter rangeBegin, Iter rangeEnd) const {
+			assert(std::distance(rangeBegin, rangeEnd) == items.size());
+			u8string ret;
+			size_type sz = items.size();
+			Iter iter = rangeBegin;
+			for (size_type i = 0; i < sz - 1 && iter != rangeEnd; ++i, ++iter) {
+				ret.append(items[*iter].quote(quote, escape));
+				ret.append(*this);
+			}
+			ret.append(items[*iter].quote(quote, escape));
+			return ret;
+		}
         template<typename Iter>
         u8string join(Iter begin, Iter end, u8string const& quote, u8string const& escape) const
         {
