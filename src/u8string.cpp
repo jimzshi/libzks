@@ -639,29 +639,39 @@ namespace zks
 
     namespace unicode
     {
-
-        txt_format txt_peek_header(u8string const& fn)
+		txt_format txt_consume_header(std::istream & is)
+		{
+			if (is.fail()) {
+				zks::unicode::txt_format::error;
+			}
+			char header[3] = { 0 };
+			is.read(header, 3);
+			if (is.gcount() == 3) {
+				if (header[0] == (char)0xfe && header[1] == (char)0xff) {
+					is.seekg(2);
+					return zks::unicode::txt_format::utf16be;
+				}
+				else if (header[0] == (char)0xff && header[1] == (char)0xfe) {
+					is.seekg(2);
+					return zks::unicode::txt_format::utf16le;
+				}
+				else if (header[0] == (char)0xef && header[1] == (char)0xbb && header[2] == (char)0xbf) {
+					return zks::unicode::txt_format::utf8bom;
+				}
+			}
+			is.seekg(0);
+			std::string line;
+			std::getline(is, line);
+			is.seekg(0);
+			if (unicode::validate(line.data())) {
+				return zks::unicode::txt_format::utf8;
+			}
+			return zks::unicode::txt_format::unknown;
+		}
+		txt_format txt_peek_header(u8string const& fn)
         {
             std::ifstream fin(fn.c_str(), std::ios_base::binary);
-            char header[3] = { 0 };
-            fin.read(header, 3);
-            if (fin.gcount() == 3) {
-                if (header[0] == (char) 0xfe && header[1] == (char) 0xff) {
-                    return zks::unicode::txt_format::utf16be;
-                }
-                else if (header[0] == (char) 0xff && header[1] == (char) 0xfe) {
-                    return zks::unicode::txt_format::utf16le;
-                }
-                else if (header[0] == (char) 0xef && header[1] == (char) 0xbb && header[2] == (char) 0xbf) {
-                    return zks::unicode::txt_format::utf8bom;
-                }
-            }
-            std::string line;
-            std::getline(fin, line);
-            if (unicode::validate(line.data())) {
-                return zks::unicode::txt_format::utf8;
-            }
-            return zks::unicode::txt_format::unknown;
+			return txt_consume_header(fin);
         }
     } /* namespace unicode */
 

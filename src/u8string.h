@@ -1383,8 +1383,9 @@ namespace zks
     {
         enum txt_format
         {
-            utf16le, utf16be, utf8bom, utf8, unknown
+            error, utf16le, utf16be, utf8bom, utf8, unknown
         };
+		txt_format txt_consume_header(std::istream& is);
         txt_format txt_peek_header(u8string const& fn);
 
 #ifdef ZKS_OS_GNULINUX_
