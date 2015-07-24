@@ -73,7 +73,7 @@ namespace zks
         }
         bool has_option(u8string const& sec, u8string const& opt) const
         {
-            return _sec_map_.count(sec) && _sec_map_.at(sec).count(opt);
+            return _sec_map_.count(sec.tolower()) && _sec_map_.at(sec.tolower()).count(opt);
         }
 
         int section(const u8string& sec, OptionMap* res) const;
