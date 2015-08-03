@@ -6,7 +6,7 @@
 
 using namespace std;
 
-extern zks::simlog logger;
+extern zks::simlog g_logger;
 
 inline
 int test_parse()

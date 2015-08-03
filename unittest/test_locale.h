@@ -11,7 +11,7 @@
 using namespace std;
 using namespace zks;
 
-extern zks::simlog logger;
+extern zks::simlog g_logger;
 
 inline
 void prepare_file()
@@ -244,14 +244,14 @@ int test_code()
     ZKS_INFO(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
 #elif defined(ZKS_OS_WINDOWS_)
     std::locale loc = std::locale("");
-    ZKS_INFO(logger, "test", "user's loc: %s", loc.name().c_str());
+    ZKS_INFO(g_logger, "test", "user's loc: %s", loc.name().c_str());
     std::locale latin1 = std::locale(".1252");
-    ZKS_INFO(logger, "test", "latin1 name: %s", latin1.name().c_str());
+    ZKS_INFO(g_logger, "test", "latin1 name: %s", latin1.name().c_str());
     std::string latin1str {"\x33\x31\xEA\x35\x36"};
     u8string u8str = zks::unicode::decode(1252, latin1str);
-    ZKS_INFO(logger, "test", "decode from latin1: %s", u8str.c_str());
+    ZKS_INFO(g_logger, "test", "decode from latin1: %s", u8str.c_str());
     std::string gb18030str = zks::unicode::encode(54936, u8str);
-    ZKS_INFO(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
+    ZKS_INFO(g_logger, "test", "encode to GB18030: %s", gb18030str.c_str());
 #endif
     return 0;
 }

@@ -1,11 +1,7 @@
-#include "test_conf.h"
-#include "test_locale.h"
-#include "test_simlog.h"
-#include "test_stopwatch.h"
-#include "test_utility.h"
-#include "test_hash.h"
-#include "test_bit.h"
-#include "test_array.h"
-#include "test_random.h"
-#include "test_distributor.h"
+#include "libzks.h"
 
+extern zks::RangedRNGen<int> g_test_rng;
+extern zks::simlog g_logger;
+extern zks::simconf g_settings;
+
+bool test_init(int argc, char* const argv[]);

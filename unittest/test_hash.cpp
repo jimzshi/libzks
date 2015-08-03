@@ -13,14 +13,10 @@ using namespace std;
 
 
 #ifndef ZKS_SINGLE_VS_SOLUTION_
-int main(int argc, const char* argv[]) {
-    if (argc < 3) {
-        cerr << argv[0] << " log.ini log-file" << endl;
-        return 0;
-    }
-    logger.configure(argv[1]);
-    logger.config.output.file_name = argv[2];
-    logger.reset();
+int main(int argc, char* argv[]) {
+	if (!test_init(argc, argv)) {
+		return -1;
+	}
 
     //test_hash();
     //test_hash128();

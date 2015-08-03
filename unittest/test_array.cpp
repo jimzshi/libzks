@@ -12,20 +12,14 @@
 using namespace std;
 
 
-#ifndef ZKS_SINGLE_VS_SOLUTION_
 int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        cerr << argv[0] << " log.ini log-file" << endl;
-        return 0;
-    }
-    logger.configure(argv[1]);
-    logger.config.output.file_name = argv[2];
-    logger.reset();
+	if (!test_init(argc, argv)) {
+		return -1;
+	}
 
     test_chunk_array();
     test_lazy_array();
 
     return 0;
 }
-#endif
 

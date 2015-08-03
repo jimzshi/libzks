@@ -18,9 +18,9 @@ int main(int argc, char* argv[]) {
         cerr << argv[0] << " log.ini log-file" << endl;
         return 0;
     }
-    logger.configure(argv[1]);
-    logger.config.output.file_name = argv[2];
-    logger.reset();
+    g_logger.configure(argv[1]);
+    g_logger.config.output.file_name = argv[2];
+    g_logger.reset();
 
     test_locale(argc, argv);
     test_assign();

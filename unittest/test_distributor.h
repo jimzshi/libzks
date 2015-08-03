@@ -8,19 +8,14 @@
 #ifndef TEST_DISTRIBUTOR_H_
 #define TEST_DISTRIBUTOR_H_
 
-#include "configure.h"
-#include "distributor.h"
-#include "random.h"
-#include "simlog.h"
+#include "test.h"
 
 #include <vector>
 #include <thread>
 
-extern zks::simlog logger;
-
 inline
 void sleep_worker(const int& t) {
-    ZKS_INFO(logger, "distributor", "sleep for %d seconds.", t);
+    ZKS_INFO(g_logger, "distributor", "sleep for %d seconds.", t);
     std::this_thread::sleep_for(std::chrono::seconds(t));
     return;
 }
@@ -28,7 +23,7 @@ void sleep_worker(const int& t) {
 inline
 int sleep_worker2(const int& t) {
     int ret = 2 * t;
-    ZKS_INFO(logger, "distributor", "sleep for %d seconds. ret: %d", t, ret);
+    ZKS_INFO(g_logger, "distributor", "sleep for %d seconds. ret: %d", t, ret);
     std::this_thread::sleep_for(std::chrono::seconds(t));
     return ret;
 }
@@ -49,7 +44,7 @@ void test_foreach2() {
     zks::sample(tv.begin(), tv.end(), zks::RangedRNGen<int>(1,10));
     rv = zks::for_each(tv.begin(), tv.begin() + 4, sleep_worker2, 2);
     for(auto i : rv) {
-        ZKS_INFO(logger, "test_foreach2", "rv: %d", i);
+        ZKS_INFO(g_logger, "test_foreach2", "rv: %d", i);
     }
     return;
 }
@@ -71,7 +66,7 @@ void test_dist2() {
     zks::sample(tv.begin(), tv.end(), zks::RangedRNGen<int>(1,10));
     zks::distribute(sleep_worker2, tv, &rv, 2);
     for(auto i : rv) {
-        ZKS_INFO(logger, "test_dist2", "rv: %d", i);
+        ZKS_INFO(g_logger, "test_dist2", "rv: %d", i);
     }
     return;
 }
