@@ -185,7 +185,7 @@ int test_split()
 {
     std::vector<u8string> cases { R"(Year,Make,Model,Description,Price)", R"(1997,Ford,E350,"ac, abs, moon",3000.00)",
             R"(1999,Chevy,"Venture ""Extended Edition""","",4900.00)", R"(1999,Chevy,"Venture ""Extended Edition, Very Large""",,5000.00)",
-            R"(1996,Jeep,Grand Cherokee,"MUST SELL! - 
+            R"(1996,Jeep,Grand Cherokee,"MUST SELL! -
 air, moon roof, loaded",4799.00)" };
     for (auto s : cases) {
         std::clog << u8string(20, '=') << "\nraw string: R(" << s << ")R\nafter split: \n";
@@ -200,7 +200,7 @@ int test_join()
 {
     std::vector<u8string> cases { R"(Year,Make,Model,Description,Price)", R"(1997,Ford,E350,"ac, abs, moon",3000.00)",
             R"(1999,Chevy,"Venture ""Extended Edition""","",4900.00)", R"(1999,Chevy,"Venture ""Extended Edition, Very Large""",,5000.00)",
-            R"(1996,Jeep,Grand Cherokee,"MUST SELL! - 
+            R"(1996,Jeep,Grand Cherokee,"MUST SELL! -
 air, moon roof, loaded",4799.00)" };
     for (auto s : cases) {
         std::clog << u8string(20, '=') << "\nraw string: R(" << s << ")R\nafter split: \n";
@@ -234,14 +234,14 @@ int test_code()
 {
 #ifdef ZKS_OS_GNULINUX_
     std::locale loc = std::locale("");
-    ZKS_INFO(logger, "test", "user's loc: %s", loc.name().c_str());
+    ZKS_INFO(g_logger, "test", "user's loc: %s", loc.name().c_str());
     std::locale latin1 = std::locale("en_US.iso88591");
-    ZKS_INFO(logger, "test", "latin1 name: %s", latin1.name().c_str());
+    ZKS_INFO(g_logger, "test", "latin1 name: %s", latin1.name().c_str());
     std::string latin1str { "\x33\x31\xEA\x35\x36" };
     u8string u8str = zks::unicode::decode("en_US.iso88591", latin1str);
-    ZKS_INFO(logger, "test", "decode from latin1: %s", u8str.c_str());
+    ZKS_INFO(g_logger, "test", "decode from latin1: %s", u8str.c_str());
     std::string gb18030str = zks::unicode::encode("zh_CN.gb18030", u8str);
-    ZKS_INFO(logger, "test", "encode to GB18030: %s", gb18030str.c_str());
+    ZKS_INFO(g_logger, "test", "encode to GB18030: %s", gb18030str.c_str());
 #elif defined(ZKS_OS_WINDOWS_)
     std::locale loc = std::locale("");
     ZKS_INFO(g_logger, "test", "user's loc: %s", loc.name().c_str());
