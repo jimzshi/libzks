@@ -79,7 +79,7 @@ void test_hashcode(bool salt = true)
 }
 
 inline
-void test_hashvector(int argc, char* argv[])
+void test_hashvector(int argc, const char* argv[])
 {
     if (argc < 5) {
         ZKS_ERROR(g_logger, "hashvector", "%s log.ini log.txt txt-file num-of-fields. only %d args recieved.", argv[0], argc);
@@ -117,7 +117,7 @@ void test_hashvector(int argc, char* argv[])
         for (size_t i = 0; i < items.size(); ++i) {
             field_symbols[i].push_back(items[i]);
         }
-        
+
         if (!(num & 0xffff)) {
             ZKS_INFO(g_logger, "hashvector", "read in %d lines.", num);
         }

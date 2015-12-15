@@ -503,7 +503,7 @@ namespace zks
                 continue;
             }
             if (esz && p + esz <= sz && equal_to(p, esz, escape)) { //if it's a escape char,
-                if (p + esz + qsz < sz && equal_to(p + esz, qsz, quote)) { //and followed by a non-ending-quote; 
+                if (p + esz + qsz < sz && equal_to(p + esz, qsz, quote)) { //and followed by a non-ending-quote;
                     p += esz + qsz;
                     continue;
                 }
@@ -642,7 +642,7 @@ namespace zks
 		txt_format txt_consume_header(std::istream & is)
 		{
 			if (is.fail()) {
-				zks::unicode::txt_format::error;
+				return zks::unicode::txt_format::error;
 			}
 			char header[3] = { 0 };
 			is.read(header, 3);
