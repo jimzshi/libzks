@@ -27,7 +27,7 @@ namespace zks {
         typename Allocator = std::allocator<CharT>
     >
         std::basic_string<CharT, Traits, Allocator>
-        mmap(std::basic_istream<CharT, Traits>& in, Allocator alloc = {})
+        mmap_s(std::basic_istream<CharT, Traits>& in, Allocator alloc = {})
     {
         std::basic_ostringstream<CharT, Traits, Allocator>
             ss(std::basic_string<CharT, Traits, Allocator>(std::move(alloc)));
@@ -110,7 +110,7 @@ namespace zks {
         typename Allocator = std::allocator<CharO>
     >
         std::deque<CharO, Allocator>
-        mmap(std::basic_istream<CharT, Traits>& in, Allocator alloc = {})
+        mmap_xl(std::basic_istream<CharT, Traits>& in, Allocator alloc = {})
     {
         static_assert(std::is_same<CharT, CharO>::value ||
             std::is_same<std::make_unsigned<CharT>, CharO>::value ||
