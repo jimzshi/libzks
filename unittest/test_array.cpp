@@ -12,7 +12,7 @@
 using namespace std;
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, const char* argv[]) {
 	if (!test_init(argc, argv)) {
 		return -1;
 	}

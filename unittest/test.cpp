@@ -11,7 +11,7 @@ zks::simlog g_logger;
 zks::simconf g_settings;
 zks::RangedRNGen<int> g_test_rng(1, 1000000);
 
-bool test_init(int argc, char* const argv[]) {
+bool test_init(int argc, const char* argv[]) {
 	if (argc < 3) {
 		cerr << argv[0] << " settings.ini log-file" << endl;
 		return false;
