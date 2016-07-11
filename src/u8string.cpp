@@ -520,8 +520,11 @@ namespace zks
             else {
                 ret.push_back(u8string{ str_.data(), ihead, sz - ihead }.trim_spaces().unquote(quote, escape));
             }
-        }
-        return ret;
+		}
+		else if (ihead == sz) {
+			ret.push_back("");
+		}
+		return	ret;
     }
 
     u8string u8string::join(std::vector<u8string> const& items, u8string const& quote, u8string const& escape) const
