@@ -6,6 +6,9 @@ if(NOT CMAKE_BUILD_TYPE)
     set( CMAKE_BUILD_TYPE Release )
 endif()
 
+add_compile_options ($<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-std=c++1y>)
+add_compile_options ($<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>)
+
 string( TOLOWER ${CMAKE_BUILD_TYPE} CONFIG )
 set( CMAKE_DEBUG_POSTFIX "_d" )
 
@@ -13,14 +16,23 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
 	string(CONCAT CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -lc++")
 endif()
 
-if(MSVC)
-	string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
-endif()
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	string(CONCAT CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -framework CoreFoundation -framework IOKit")
 endif()
+
 string(CONCAT CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} " -DDEBUG -D_DEBUG")
 string(CONCAT CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} " -D_NDEBUG")
+
+if(MSVC)
+	string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
+	foreach(flag_var
+			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+			CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
+	   if(${flag_var} MATCHES "/MD")
+		  string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
+	   endif(${flag_var} MATCHES "/MD")
+	endforeach(flag_var)
+endif()
 
 FIND_PATH(CXXTEST_INCLUDE_DIR
   cxxtest/TestSuite.h
@@ -54,9 +66,6 @@ MESSAGE(STATUS "CMAKE_DEBUG_POSTFIX : ${CMAKE_DEBUG_POSTFIX}")
 
 set( CMAKE_DEBUG_TARGET_PROPERTIES on )
 set( CMAKE_VERBOSE_MAKEFILE on )
-
-add_compile_options ($<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-std=c++1y>)
-add_compile_options ($<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>)
 
 find_package ( Threads REQUIRED )
 
