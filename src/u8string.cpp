@@ -400,6 +400,9 @@ namespace zks
     }
 
     u8string u8string::trim_spaces() const {
+		if (this->size() == 0) {
+			return u8string();
+		}
         u8string ret{ *this };
         size_t p = ret.find_first_not_of(" \t\r\n\f\v");
         if (p != ret.npos){
@@ -437,6 +440,9 @@ namespace zks
     {
         size_type p { 0 }, sz(size()), qsz(q.size());
         u8string ret;
+		if (q.size() == 0) {
+			return ret;
+		}
         ret.reserve(2 * size()); //magic number, experience value; could be tuned;
 
         ret.append(q);
@@ -520,8 +526,11 @@ namespace zks
             else {
                 ret.push_back(u8string{ str_.data(), ihead, sz - ihead }.trim_spaces().unquote(quote, escape));
             }
-        }
-        return ret;
+		}
+		else if (ihead == sz) {
+			ret.push_back("");
+		}
+		return	ret;
     }
 
     u8string u8string::join(std::vector<u8string> const& items, u8string const& quote, u8string const& escape) const
