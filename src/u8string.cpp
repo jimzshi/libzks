@@ -441,7 +441,7 @@ namespace zks
         size_type p { 0 }, sz(size()), qsz(q.size());
         u8string ret;
 		if (q.size() == 0) {
-			return ret;
+			return *this;
 		}
         ret.reserve(2 * size()); //magic number, experience value; could be tuned;
 
