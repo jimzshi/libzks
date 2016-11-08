@@ -17,4 +17,5 @@ foreach(test_src ${ZKS_TEST_SRC})
 	install (TARGETS ${test_bin} DESTINATION bin)
 endforeach(test_src)
 
-install (FILES nsw_lotto.ini DESTINATION etc)
+#install (FILES nsw_lotto.ini buildit.ini goods.json DESTINATION etc)
+install (FILES nsw_lotto.ini buildit.ini goods.json DESTINATION bin)

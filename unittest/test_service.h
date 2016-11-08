@@ -10,9 +10,10 @@ class Goods : std::enable_shared_from_this<Goods> {
 public:
     std::string name;
     int prod_time;
+    int price;
     enum State { INIT, PROD, DONE, CONSUMED };
     State state;
-    Goods(std::string const& n, int t) : name(n), prod_time(t) { state = INIT; }
+    Goods(std::string const& n, int t, int p) : name(n), prod_time(t), price(p) { state = INIT; }
     ~Goods() = default;
 };
 

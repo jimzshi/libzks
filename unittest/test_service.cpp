@@ -1,16 +1,36 @@
 #include "test.h"
 #include "test_service.h"
 
+#include "u8string.h"
+#include "json.h"
+
+#include <iostream>
+#include <fstream>
+
+using namespace zks;
+
 int main(int argc, const char* argv[]) {
     if (!test_init(argc, argv)) {
         return -1;
     }
 
-    //int  pool_size(-1), pick_balls(-1), pick_rounds(-1);
-    //g_settings.option_num("lotto", "pool_size", &pool_size);
-    //g_settings.option_num("lotto", "pick_balls", &pick_balls);
-    //g_settings.option_num("lotto", "pick_rounds", &pick_rounds);
-    //collect_balls(pool_size, pick_balls, pick_rounds);
+    if (!g_settings.has_option("buildit", "goods")) {
+        ZKS_ERROR(g_logger, "buildit", "can't find option %s", "buildit");
+        return -2;
+    }
+
+    u8string goods_json;
+    g_settings.option("buildit", "goods", &goods_json);
+
+    std::ifstream goods_ifs(goods_json.c_str(), std::ifstream::binary);
+    if (!goods_ifs) {
+        ZKS_ERROR(g_logger, "buildit", "can't open file %s", goods_json.c_str());
+        return -3;
+    }
+    Json::Value root;
+    goods_ifs >> root;
+
+    std::cout << root;
 
     return 0;
 }

@@ -1,0 +1,273 @@
+{
+  "factory": {
+    "feed": {
+      "time": 360,
+      "price": 140
+    },
+    "chemical": {
+      "time": 120,
+      "price": 60
+    },
+    "glass": {
+      "time": 300,
+      "price": 120
+    },
+    "metal": {
+      "time": 1,
+      "price": 10
+    },
+    "mineral": {
+      "time": 30,
+      "price": 40
+    },
+    "plastic": {
+      "time": 10,
+      "price": 25
+    },
+    "seed": {
+      "time": 20,
+      "price": 20
+    },
+    "spice": {
+      "time": 240,
+      "price": 110
+    },
+    "textile": {
+      "time": 180,
+      "price": 90
+    },
+    "wood": {
+      "time": 3,
+      "price": 20
+    }
+  },
+  "store": {
+    "farmer_market": {
+      "vegetable": {
+        "time": 20,
+        "price": 160,
+        "ingredient": {
+          "seed": 2
+        }
+      },
+      "flour": {
+        "time": 30,
+        "ingredient": {
+          "seed": 2,
+          "textile": 2
+        }
+      },
+      "fruit": {
+        "time": 90,
+        "price": 730,
+        "ingredient": {
+          "seed": 2,
+          "sapling": 1
+        }
+      },
+      "cream": {
+        "time": 75,
+        "ingredient": {
+          "feed": 1
+        }
+      },
+      "corn": {
+        "time": 60,
+        "price": 280,
+        "ingredient": {
+          "mineral": 1,
+          "seed": 4
+        }
+      }
+    },
+    "building_supllies": {
+      "nail": {
+        "time": 5,
+        "price": 80,
+        "ingredient": {
+          "metal": 2
+        }
+      },
+      "plank": {
+        "time": 30,
+        "price": 120,
+        "ingredient": {
+          "wood": 2
+        }
+      },
+      "brick": {
+        "time": 20,
+        "ingredient": {
+          "mineral": 2
+        }
+      },
+      "cement": {
+        "time": 5,
+        "cement": 440,
+        "ingredient": {
+          "mineral": 2,
+          "chemical": 1
+        }
+      },
+      "glue": {
+        "time": 60,
+        "price": 440,
+        "ingredient": {
+          "plastic": 1,
+          "chemical": 2
+        }
+      },
+      "paint": {
+        "time": 60,
+        "ingredient": {
+          "metal": 2,
+          "mineral": 1,
+          "chemical": 2
+        }
+      }
+    },
+    "furniture": {
+      "chair": {
+        "time": 20,
+        "price": 300,
+        "ingredient": {
+          "wood": 2,
+          "nail": 1,
+          "hammer": 1
+        }
+      },
+      "table": {
+        "time": 30,
+        "price": 500,
+        "ingredient": {
+          "plank": 2,
+          "nail": 2,
+          "hammer": 1
+        }
+      }
+    },
+    "gardening": {
+      "grass": {
+        "time": 30,
+        "ingredient": {
+          "seed": 1,
+          "shovel": 1
+        }
+      },
+      "sapling": {
+        "time": 90,
+        "price": 420,
+        "ingredient": {
+          "seed": 2,
+          "shovel": 1
+        }
+      },
+      "garden_furniture": {
+        "time": 135,
+        "price": 820,
+        "ingredient": {
+          "plank": 2,
+          "plastic": 2,
+          "textile": 2
+        }
+      }
+    },
+    "fasion": {
+      "cap": {
+        "time": 60,
+        "price": 600,
+        "ingredient": {
+          "textile": 2,
+          "tape": 1
+        }
+      },
+      "shoes": {
+        "time": 30,
+        "price": 980,
+        "ingredient": {
+          "textile": 2,
+          "plastic": 1,
+          "glue": 1
+        }
+      },
+      "watch": {
+        "time": 90,
+        "price": 580,
+        "ingredient": {
+          "plastic": 2,
+          "glass": 1,
+          "chemical": 1
+        }
+      }
+    },
+    "donutshop": {
+      "donut": {
+        "time": 45,
+        "price": 950,
+        "ingredient": {
+          "flour": 1,
+          "spice": 1
+        }
+      },
+      "smoothie": {
+        "time": 30,
+        "price": 1150,
+        "ingredient": {
+          "vegetable": 1,
+          "fruit": 1
+        }
+      },
+      "bread": {
+        "time": 60,
+        "ingredient": {
+          "flour": 2,
+          "cream": 1
+        }
+      }
+    },
+    "hardware": {
+      "hammer": {
+        "time": 13,
+        "price": 90,
+        "ingredient": {
+          "metal": 1,
+          "wood": 1
+        }
+      },
+      "tape": {
+        "time": 20,
+        "ingredient": {
+          "metal": 1,
+          "plastic": 1
+        }
+      },
+      "shovel": {
+        "time": 30,
+        "price": 150,
+        "ingredient": {
+          "metal": 1,
+          "plastic": 1,
+          "wood": 1
+        }
+      },
+      "ladder": {
+        "time": 60,
+        "price": 420,
+        "ingredient": {
+          "plank": 2,
+          "metal": 2
+        }
+      },
+      "utensil": {
+        "time": 45,
+        "price": 250,
+        "ingredient": {
+          "metal": 2,
+          "plastic": 2,
+          "wood": 2
+        }
+      }
+    }
+  }
+}
+
