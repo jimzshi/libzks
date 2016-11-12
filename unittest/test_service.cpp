@@ -6,31 +6,49 @@
 
 #include <iostream>
 #include <fstream>
+#include <unordered_map>
+#include <string>
 
 using namespace zks;
+
+class BuildIt {
+public:
+    using GoodsStoreMap = std::unordered_map<std::string, std::string>;
+
+private:
+    Json::Value goods_root_;
+
+public:
+    BuildIt() = default;
+    ~BuildIt() = default;
+
+    int init() {
+        if (!g_settings.has_option("buildit", "goods")) {
+            ZKS_ERROR(g_logger, "buildit", "can't find option %s", "buildit");
+            return -2;
+        }
+
+        u8string goods_json;
+        g_settings.option("buildit", "goods", &goods_json);
+
+        std::ifstream goods_ifs(goods_json.c_str(), std::ifstream::binary);
+        if (!goods_ifs) {
+            ZKS_ERROR(g_logger, "buildit", "can't open file %s", goods_json.c_str());
+            return -3;
+        }
+        
+        goods_ifs >> goods_root_;
+    }
+
+    int build_goods_map() {
+        //goods_root_.get
+    }
+};
 
 int main(int argc, const char* argv[]) {
     if (!test_init(argc, argv)) {
         return -1;
     }
-
-    if (!g_settings.has_option("buildit", "goods")) {
-        ZKS_ERROR(g_logger, "buildit", "can't find option %s", "buildit");
-        return -2;
-    }
-
-    u8string goods_json;
-    g_settings.option("buildit", "goods", &goods_json);
-
-    std::ifstream goods_ifs(goods_json.c_str(), std::ifstream::binary);
-    if (!goods_ifs) {
-        ZKS_ERROR(g_logger, "buildit", "can't open file %s", goods_json.c_str());
-        return -3;
-    }
-    Json::Value root;
-    goods_ifs >> root;
-
-    std::cout << root;
 
     return 0;
 }
