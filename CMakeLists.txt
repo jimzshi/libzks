@@ -10,7 +10,7 @@ add_compile_options ($<$<OR:$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:GNU>>:-st
 add_compile_options ($<$<CXX_COMPILER_ID:Clang>:-stdlib=libc++>)
 
 string( TOLOWER ${CMAKE_BUILD_TYPE} CONFIG )
-set( CMAKE_DEBUG_POSTFIX "_d" )
+set( CMAKE_DEBUG_POSTFIX "d" )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL Clang)
 	string(CONCAT CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} " -lc++")
@@ -24,14 +24,19 @@ string(CONCAT CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG} " -DDEBUG -D_DEBUG"
 string(CONCAT CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE} " -D_NDEBUG")
 
 if(MSVC)
-	string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
-	foreach(flag_var
-			CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
-			CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
-	   if(${flag_var} MATCHES "/MD")
-		  string(REGEX REPLACE "/MD" "/MT" ${flag_var} "${${flag_var}}")
-	   endif(${flag_var} MATCHES "/MD")
-	endforeach(flag_var)
+    option(MSVC_LINK_STATIC_LIB "use /MT(d) for code generation." on)
+    if(MSVC_LINK_STATIC_LIB)
+        string(CONCAT CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} " -D_SCL_SECURE_NO_WARNINGS -D_CRT_SECURE_NO_WARNINGS")
+        foreach(CompilerFlag
+                CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+                CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+                CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+                CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+        if(${CompilerFlag} MATCHES "/MD")
+                string(REPLACE "/MD" "/MT" ${CompilerFlag} "${${CompilerFlag}}")
+        endif(${CompilerFlag} MATCHES "/MD")
+        endforeach(CompilerFlag)
+    endif()
 endif()
 
 FIND_PATH(CXXTEST_INCLUDE_DIR
